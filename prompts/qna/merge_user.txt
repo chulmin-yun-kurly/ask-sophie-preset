@@ -1,0 +1,15 @@
+아래 질문들을 의미가 유사한 것끼리 묶어서 가능한 한 적은 수의 그룹으로 정리해주세요.
+
+카테고리: {category}
+
+질문 목록:
+{qs_text}
+
+각 그룹에서 가장 대표적인 질문 하나를 대표로 선택해주세요.
+
+JSON 형식:
+{{"groups": [
+  {{"representative": "대표 질문", "question_indices": [0, 3, 5]}},
+  {{"representative": "대표 질문", "question_indices": [1, 2]}},
+  ...
+]}}

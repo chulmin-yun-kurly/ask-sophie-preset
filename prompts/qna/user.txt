@@ -1,0 +1,15 @@
+아래 {item_count}개 올리브오일 상품의 description JSON을 분석하여, 각 상품의 key_description과 topic_keyword를 생성해주세요.
+
+각 상품의 description JSON에는 다음과 같은 필드가 포함되어 있습니다:
+- gv_type: 상세 페이지 섹션 유형 (main_title, kurlys_checkpoint, kurlys_pick, kurlys_tip, about_brand 등)
+- gv_sub_title: 섹션 소제목
+- gv_contents: 텍스트 기반 상세 설명
+- gv_contents_ocr: 이미지에서 OCR로 추출한 텍스트
+
+{products_text}
+
+응답 JSON 형식:
+{{"results": [
+  {{"index": 0, "key_description": "이탈리아 시칠리아산 코라티나 단일 품종으로 만든 유기농 DOP 인증 오일. 높은 폴리페놀 함량과 낮은 산도로 풍미가 깊고, 샐러드나 빵에 마무리용으로 적합", "topic_keyword": ["이탈리아", "시칠리아", "코라티나", "유기농", "DOP", "엑스트라버진", "마무리용", "샐러드드레싱", "아그레스티스"]}},
+  ...
+]}}

@@ -1,0 +1,16 @@
+[
+  {"id": 1,  "name": "구매 가이드",     "type": "GUIDE"},
+  {"id": 2,  "name": "컬리 특화",       "type": "KURLY"},
+  {"id": 3,  "name": "품질/인증",       "type": "QUALITY"},
+  {"id": 4,  "name": "맛/향",           "type": "FLAVOR"},
+  {"id": 5,  "name": "용도/상황",       "type": "PURPOSE"},
+  {"id": 6,  "name": "타겟 고객",       "type": "TARGET"},
+  {"id": 7,  "name": "페어링",          "type": "PAIRING"},
+  {"id": 8,  "name": "명시적 정보 기반", "type": "EXPLICIT"},
+  {"id": 9,  "name": "사회적 증거",     "type": "SOCIAL"},
+  {"id": 10, "name": "차별점",          "type": "DIFF"},
+  {"id": 11, "name": "트리비아",        "type": "TRIVIA"},
+  {"id": 12, "name": "보관/관리",       "type": "STORAGE"},
+  {"id": 13, "name": "레시피",          "type": "RECIPE"},
+  {"id": 14, "name": "배송",            "type": "DELIVERY"}
+]

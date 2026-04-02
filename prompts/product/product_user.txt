@@ -1,0 +1,10 @@
+아래 상품들에 대해 각각 소개 및 홍보 텍스트를 작성해주세요.
+
+{products_text}
+
+JSON 형식으로 응답:
+{{"results": [
+  {{"index": 0, "headline": "<h3>...</h3>", "strengths": "<ul><li>...</li></ul>", "stories":"<p>...</p>", "targetUser": "<ul><li>...</li></ul>"}},
+  {{"index": 0, "headline": "<h3>...</h3>", "strengths": "<ul><li>...</li></ul>", "stories":"<p>...</p>", "targetUser": "<ul><li>...</li></ul>"}},
+  ...
+]}}

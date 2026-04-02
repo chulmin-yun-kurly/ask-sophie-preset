@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+
+# 환경
+.python-version
+.env
+
+# 데이터 / 산출물
+*.csv
+output/
+dashboard/*.json
+
+# 노트북
+*.ipynb
+.ipynb_checkpoints/
