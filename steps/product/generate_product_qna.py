@@ -169,13 +169,17 @@ async def main():
     for item in items:
         idx = item['original_idx']
         questions = question_results.get(idx, [])
-        for q_num, question in enumerate(questions, start=1):
+        for q_num, q in enumerate(questions, start=1):
+            # q는 {"question": "...", "category": "..."} dict
+            q_text = q.get('question', '') if isinstance(q, dict) else q
+            q_category = q.get('category', '') if isinstance(q, dict) else ''
             qa_key = f"{item['content_no']}_{q_num}"
             qa_items.append({
                 'qa_key': qa_key,
                 'content_no': item['content_no'],
                 'content_nm': item['content_nm'],
-                'question': question,
+                'question': q_text,
+                'category': q_category,
                 'q_number': q_num,
                 'key_description': item['key_description'],
                 'description': item['description'],
@@ -198,6 +202,7 @@ async def main():
             'content_no': qa_item['content_no'],
             'content_nm': qa_item['content_nm'],
             'q_number': qa_item['q_number'],
+            'category': qa_item['category'],
             'question': qa_item['question'],
             'answer_intro': answer.get('answer_intro', ''),
             'subtopics': json.dumps(answer.get('subtopics', []), ensure_ascii=False),

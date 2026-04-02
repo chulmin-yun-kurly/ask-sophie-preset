@@ -16,7 +16,7 @@ from config import MODEL_EMBEDDING, EMBEDDING_BATCH_SIZE
 from llm_client import get_embeddings
 from sheet_reader import read_google_sheet, write_dataframe_to_sheet
 
-SUGGEST_COUNT = 5
+SUGGEST_COUNT = 15
 DIRECT_MAP_LIMIT = 2
 
 
