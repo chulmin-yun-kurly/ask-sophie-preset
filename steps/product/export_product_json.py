@@ -14,7 +14,7 @@ def export_product(product_map: dict):
         json.dump(product_map, f, ensure_ascii=False, indent=2)
 
     # product_questions.jsonl
-    questions_file = 'output/questions/product.jsonl'
+    questions_file = 'output/questions/question_product.jsonl'
     q_count = 0
     with open(questions_file, 'w', encoding='utf-8') as f:
         for cno, product in product_map.items():
@@ -34,7 +34,7 @@ def export_product(product_map: dict):
             q_count += 1
 
     # product_answers.jsonl
-    answers_file = 'output/answers/product.jsonl'
+    answers_file = 'output/answers/answer_product.jsonl'
     a_count = 0
     with open(answers_file, 'w', encoding='utf-8') as f:
         for cno, product in product_map.items():
@@ -75,8 +75,8 @@ def export_product(product_map: dict):
 
 def export_product_qna(df_qna, product_map: dict):
     """product_qna 시트를 INFO 타입 JSONL로 저장합니다."""
-    pqq_file = 'output/questions/product_qna.jsonl'
-    pqa_file = 'output/answers/product_qna.jsonl'
+    pqq_file = 'output/questions/question_product_qna.jsonl'
+    pqa_file = 'output/answers/answer_product_qna.jsonl'
     q_count = 0
     a_count = 0
 

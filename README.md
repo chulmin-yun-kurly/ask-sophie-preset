@@ -239,13 +239,13 @@ data_analyzer/
     ├── content_map.json        # content_no → content_nm 매핑
     ├── product_data.json       # content_no → 상품 텍스트 매핑
     ├── questions/
-    │   ├── qna.jsonl           # QnA 질문 JSONL
-    │   ├── product.jsonl       # 상품 질문 JSONL
-    │   └── product_qna.jsonl   # 상품 QnA 질문 JSONL
+    │   ├── question_qna.jsonl           # QnA 질문 JSONL
+    │   ├── question_product.jsonl       # 상품 질문 JSONL
+    │   └── question_product_qna.jsonl   # 상품 QnA 질문 JSONL
     └── answers/
-        ├── qna.jsonl           # QnA 답변 JSONL
-        ├── product.jsonl       # 상품 답변 JSONL
-        └── product_qna.jsonl   # 상품 QnA 답변 JSONL
+        ├── answer_qna.jsonl             # QnA 답변 JSONL
+        ├── answer_product.jsonl         # 상품 답변 JSONL
+        └── answer_product_qna.jsonl     # 상품 QnA 답변 JSONL
 ```
 
 ## 설정 (`config.py`)

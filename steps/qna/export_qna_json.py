@@ -86,7 +86,7 @@ def main():
     DEFAULT_KEYWORD = "올리브오일"
 
     # 6. questions.jsonl 저장 (ai_agent_question)
-    questions_file = 'output/questions/qna.jsonl'
+    questions_file = 'output/questions/question_qna.jsonl'
     q_count = 0
     with open(questions_file, 'w', encoding='utf-8') as f:
         for cat in result:
@@ -108,7 +108,7 @@ def main():
                 q_count += 1
 
     # 7. answers.jsonl 저장 (ai_agent_answer)
-    answers_file = 'output/answers/qna.jsonl'
+    answers_file = 'output/answers/answer_qna.jsonl'
     a_count = 0
     with open(answers_file, 'w', encoding='utf-8') as f:
         for cat in result:
