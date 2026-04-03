@@ -2,9 +2,9 @@
 
 {products_text}
 
-JSON 형식으로 응답:
+JSON 형식으로 응답 (모든 값은 문자열, 배열 사용 금지):
 {{"results": [
-  {{"index": 0, "headline": "<h3>...</h3>", "strengths": "<ul><li>...</li></ul>", "stories":"<p>...</p>", "targetUser": "<ul><li>...</li></ul>"}},
-  {{"index": 0, "headline": "<h3>...</h3>", "strengths": "<ul><li>...</li></ul>", "stories":"<p>...</p>", "targetUser": "<ul><li>...</li></ul>"}},
+  {{"index": 0, "headline": "핵심 헤드라인", "strengths": "- 특장점1\n- 특장점2\n- 특장점3", "stories": "스토리 텍스트", "targetUser": "- 추천 대상1\n- 추천 대상2"}},
+  {{"index": 1, "headline": "핵심 헤드라인", "strengths": "- 특장점1\n- 특장점2", "stories": "스토리 텍스트", "targetUser": "- 추천 대상1\n- 추천 대상2"}},
   ...
 ]}}

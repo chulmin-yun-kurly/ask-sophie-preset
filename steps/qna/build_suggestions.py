@@ -19,7 +19,7 @@ def build_content_map(df_prepared: pd.DataFrame) -> dict:
     """prepared_data에서 content_no → key_description 매핑을 생성합니다."""
     content_map = {}
     for _, row in df_prepared.iterrows():
-        cno = str(row['content_no']).strip()
+        cno = int(row['content_no'])
         content_map[cno] = row.get('key_description', '')
     return content_map
 
@@ -33,7 +33,7 @@ def get_content_descriptions(content_list_json: str, content_map: dict) -> str:
 
     descs = []
     for cno in content_nos:
-        desc = content_map.get(str(cno).strip(), '')
+        desc = content_map.get(int(cno), '')
         if desc:
             descs.append(desc)
     return " / ".join(descs)

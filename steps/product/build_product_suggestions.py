@@ -30,7 +30,7 @@ def build_qna_group_data(df_qna):
         content_list = json.loads(row['content_list']) if row.get('content_list') else []
         groups.append({'id': gid, 'representative': rep})
         for cno in content_list:
-            cno = str(cno).strip()
+            cno = int(cno)
             if cno not in direct_map:
                 direct_map[cno] = []
             if gid not in direct_map[cno]:
@@ -81,7 +81,7 @@ async def main():
     df_prepared = read_google_sheet(sheet_name='prepared_data')
     key_desc_map = {}
     for _, row in df_prepared.iterrows():
-        cno = str(row['content_no']).strip()
+        cno = int(row['content_no'])
         key_desc_map[cno] = row.get('key_description', '')
 
     try:
@@ -98,7 +98,7 @@ async def main():
     pqq_map = {}  # content_no → list of pqq IDs
     if df_product_qna is not None:
         for _, row in df_product_qna.iterrows():
-            cno = str(row['content_no']).strip()
+            cno = int(row['content_no'])
             q_num = int(row['q_number'])
             pqq_id = f"pqq_{cno}_{q_num}"
             if cno not in pqq_map:
@@ -111,7 +111,7 @@ async def main():
     product_texts = []
     product_cnos = []
     for _, row in df_product.iterrows():
-        cno = str(row['content_no']).strip()
+        cno = int(row['content_no'])
         key_desc = key_desc_map.get(cno, '')
         product_texts.append(f"{row['content_nm']} {key_desc}")
         product_cnos.append(cno)
@@ -162,7 +162,7 @@ async def main():
 
         pqna_suggest_col = []
         for qi, (_, row) in enumerate(df_product_qna.iterrows()):
-            cno = str(row['content_no']).strip()
+            cno = int(row['content_no'])
             suggest_ids = fill_from_qna_group([], cno, sim_pqna_group[qi], groups, direct_map)
             pqna_suggest_col.append(json.dumps(suggest_ids, ensure_ascii=False))
 

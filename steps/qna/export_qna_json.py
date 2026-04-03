@@ -4,6 +4,7 @@ prepared_data에서 content_no → content_nm 매핑도 함께 저장합니다.
 """
 import json
 import os
+from llm_client import strip_html
 from sheet_reader import read_google_sheet
 
 RESOURCE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'resource')
@@ -28,7 +29,7 @@ def main():
     df_prepared = read_google_sheet(sheet_name='prepared_data')
     content_map = {}
     for _, row in df_prepared.iterrows():
-        cno = str(row['content_no']).strip()
+        cno = int(row['content_no'])
         content_map[cno] = row.get('content_nm', '')
     print(f"   상품 매핑: {len(content_map)}개")
 
@@ -118,30 +119,30 @@ def main():
                 # intro
                 content.append({
                     'type': 'intro',
-                    'data': group.get('answer_intro', ''),
+                    'data': strip_html(group.get('answer_intro', '')),
                 })
 
                 # subtopics → title + description 반복
                 for st_item in group.get('subtopics', []):
                     content.append({
                         'type': 'title',
-                        'data': st_item.get('subtitle', ''),
+                        'data': strip_html(st_item.get('subtitle', '')),
                     })
                     content.append({
                         'type': 'description',
-                        'data': st_item.get('description', ''),
+                        'data': strip_html(st_item.get('description', '')),
                     })
 
                 # productNos
                 content.append({
                     'type': 'productNos',
-                    'data': [str(c) for c in group.get('content_list', [])],
+                    'data': [int(c) for c in group.get('content_list', [])],
                 })
 
                 # outro
                 content.append({
                     'type': 'outro',
-                    'data': group.get('answer_outro', ''),
+                    'data': strip_html(group.get('answer_outro', '')),
                 })
 
                 # suggestions
@@ -149,6 +150,8 @@ def main():
                     'type': 'suggestions',
                     'data': group.get('suggest', []),
                 })
+
+                content = [c for c in content if c.get('data') is not None]
 
                 line = {
                     '_id': f"a_{group['id']}",

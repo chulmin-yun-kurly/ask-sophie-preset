@@ -50,8 +50,8 @@ def main():
 
     # 3. 조인
     print("\n3. 조인 중...")
-    df_parsed_clean['contents_product_no'] = df_parsed_clean['contents_product_no'].astype(str).str.strip()
-    df_prepared['content_no'] = df_prepared['content_no'].astype(str).str.strip()
+    df_parsed_clean['contents_product_no'] = pd.to_numeric(df_parsed_clean['contents_product_no'], errors='coerce').astype('Int64')
+    df_prepared['content_no'] = pd.to_numeric(df_prepared['content_no'], errors='coerce').astype('Int64')
 
     merged = pd.merge(
         df_prepared, df_parsed_clean,

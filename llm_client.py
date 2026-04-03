@@ -2,6 +2,7 @@
 OpenAI 클라이언트 및 공통 유틸리티
 """
 import os
+import re
 import json
 import asyncio
 from openai import AsyncOpenAI, BadRequestError
@@ -40,6 +41,16 @@ def build_system_prompt(base_prompt: str) -> str:
     if knowledge:
         return f"{base_prompt}\n\n## 배경 지식\n{knowledge}"
     return base_prompt
+
+
+_HTML_TAG_RE = re.compile(r'<[^>]+>')
+
+
+def strip_html(text):
+    """문자열에서 HTML 태그를 제거합니다. 문자열이 아니면 그대로 반환."""
+    if not isinstance(text, str):
+        return text
+    return _HTML_TAG_RE.sub('', text)
 
 
 def _sanitize(text: str) -> str:

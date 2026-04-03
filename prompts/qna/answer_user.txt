@@ -14,7 +14,7 @@
 
 JSON 형식으로 응답:
 {{"answers": [
-  {{"index": 0, "answer_intro": "<p>...</p>", "subtopics": [{{"subtitle":"<h4> # ...<h4>", "description":"<p>...</p>"}}], "answer_outro": "<p>...</p>", "search_keywords": ["키워드1", "키워드2"]}},
-  {{"index": 1, "answer_intro": "<p>...</p>", "subtopics": [{{"subtitle":"<h4> # ...<h4>", "description":"<p>...</p>"}}], "answer_outro": "<p>...</p>", "search_keywords": ["키워드1", "키워드2", "키워드3"]}},
+  {{"index": 0, "answer_intro": "...", "subtopics": [{{"subtitle": "# ...", "description": "..."}}], "answer_outro": "...", "search_keywords": ["키워드1", "키워드2"]}},
+  {{"index": 1, "answer_intro": "...", "subtopics": [{{"subtitle": "# ...", "description": "..."}}], "answer_outro": "...", "search_keywords": ["키워드1", "키워드2", "키워드3"]}},
   ...
 ]}}

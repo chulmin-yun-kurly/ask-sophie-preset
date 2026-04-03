@@ -18,7 +18,7 @@ def main():
     inverted = {}
 
     for _, row in df.iterrows():
-        content_no = str(row['content_no'])
+        content_no = int(row['content_no'])
         q_list_raw = row.get('question_list', '{}')
 
         if not q_list_raw or q_list_raw in ('{}', '[]', ''):

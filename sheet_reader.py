@@ -124,8 +124,11 @@ def read_google_sheet(sheet_url: str = None, sheet_name: str = None, client_secr
     if not values:
         return pd.DataFrame()
 
-    # DataFrame 생성
-    df = pd.DataFrame(values[1:], columns=values[0])
+    # DataFrame 생성 (Google Sheets는 행 끝 빈 셀을 잘라내므로 패딩)
+    headers = values[0]
+    num_cols = len(headers)
+    padded_rows = [row + [''] * (num_cols - len(row)) for row in values[1:]]
+    df = pd.DataFrame(padded_rows, columns=headers)
 
     return df
 
