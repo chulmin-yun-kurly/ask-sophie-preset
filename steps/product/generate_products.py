@@ -7,6 +7,13 @@ from config import MODEL_MAIN, PREPARE_BATCH_SIZE, PREPARE_MAX_CONCURRENT
 from llm_client import load_prompt, build_system_prompt, chat_json
 from sheet_reader import read_google_sheet, write_dataframe_to_sheet
 
+def _ensure_str(value) -> str:
+    """LLM이 리스트로 반환할 경우 '- ' 구분 문자열로 변환합니다."""
+    if isinstance(value, list):
+        return '\n'.join(f'- {v}' for v in value)
+    return str(value) if value else ''
+
+
 async def generate_batch(items: list[dict], system_prompt: str, user_template: str) -> list[dict]:
     """여러 상품을 한 번의 API 요청으로 처리합니다."""
     products_text = ""
@@ -49,10 +56,10 @@ async def process_all(items: list[dict]) -> dict:
                     if 0 <= idx < len(batch_items):
                         original_idx = batch_items[idx]['original_idx']
                         results[original_idx] = {
-                            'headline': r.get('headline', ''),
-                            'strengths': r.get('strengths', ''),
-                            'stories': r.get('stories', ''),
-                            'targetUser': r.get('targetUser', ''),
+                            'headline': _ensure_str(r.get('headline', '')),
+                            'strengths': _ensure_str(r.get('strengths', '')),
+                            'stories': _ensure_str(r.get('stories', '')),
+                            'targetUser': _ensure_str(r.get('targetUser', '')),
                         }
                 print(f"   배치 {batch_idx + 1}/{len(batches)} 완료")
             except Exception as e:

@@ -17,7 +17,7 @@ def build_content_map(df_prepared: pd.DataFrame) -> dict:
     """prepared_data에서 content_no → 상품 정보 매핑을 생성합니다."""
     content_map = {}
     for _, row in df_prepared.iterrows():
-        cno = str(row['content_no']).strip()
+        cno = int(row['content_no'])
         content_map[cno] = {
             'content_nm': row.get('content_nm', ''),
             'key_description': row.get('key_description', ''),
@@ -34,7 +34,7 @@ def format_content_info(content_list_json: str, content_map: dict) -> str:
 
     lines = []
     for cno in content_nos:
-        cno = str(cno).strip()
+        cno = int(cno)
         info = content_map.get(cno)
         if info and info['content_nm']:
             desc = info['key_description']

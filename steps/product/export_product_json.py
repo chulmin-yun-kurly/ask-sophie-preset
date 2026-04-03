@@ -3,6 +3,7 @@ product_data 및 product_qna 시트를 JSON 파일 및 BE 스키마 JSONL로 저
 """
 import json
 import os
+from llm_client import strip_html
 from sheet_reader import read_google_sheet
 
 
@@ -20,7 +21,7 @@ def export_product(product_map: dict):
         for cno, product in product_map.items():
             line = {
                 '_id': f'pq_{cno}',
-                'productNo': int(cno),
+                'productNo': cno,
                 'isEntry': False,
                 'isActive': False,
                 'content': {
@@ -40,24 +41,26 @@ def export_product(product_map: dict):
         for cno, product in product_map.items():
             content = [
                 {'type': 'intro', 'data': None},
-                {'type': 'headline', 'data': product.get('headline', '')},
+                {'type': 'headline', 'data': strip_html(product.get('headline', ''))},
                 {'type': 'productNos', 'data': [cno]},
             ]
 
             if product.get('strengths', ''):
                 content.append({'type': 'title', 'data': '# 특장점'})
-                content.append({'type': 'description', 'data': product['strengths']})
+                content.append({'type': 'description', 'data': strip_html(product['strengths'])})
 
             if product.get('stories', ''):
                 content.append({'type': 'title', 'data': '# 스토리'})
-                content.append({'type': 'description', 'data': product['stories']})
+                content.append({'type': 'description', 'data': strip_html(product['stories'])})
 
             if product.get('targetUser', ''):
                 content.append({'type': 'title', 'data': '# 이런 분께 추천해요'})
-                content.append({'type': 'description', 'data': product['targetUser']})
+                content.append({'type': 'description', 'data': strip_html(product['targetUser'])})
 
             content.append({'type': 'outro', 'data': None})
             content.append({'type': 'suggestions', 'data': product.get('suggest', [])})
+
+            content = [c for c in content if c.get('data') is not None]
 
             line = {
                 '_id': f'pa_{cno}',
@@ -83,7 +86,7 @@ def export_product_qna(df_qna, product_map: dict):
     with open(pqq_file, 'w', encoding='utf-8') as fq, \
          open(pqa_file, 'w', encoding='utf-8') as fa:
         for _, row in df_qna.iterrows():
-            cno = str(row['content_no']).strip()
+            cno = int(row['content_no'])
             q_num = int(row['q_number'])
             q_id = f'pqq_{cno}_{q_num}'
             a_id = f'pqa_{cno}_{q_num}'
@@ -101,7 +104,7 @@ def export_product_qna(df_qna, product_map: dict):
             # question JSONL
             q_line = {
                 '_id': q_id,
-                'productNo': int(cno),
+                'productNo': cno,
                 'isEntry': False,
                 'isActive': False,
                 'content': {
@@ -125,13 +128,15 @@ def export_product_qna(df_qna, product_map: dict):
                 subtopics = subtopics_raw if subtopics_raw else []
 
             content = [
-                {'type': 'intro', 'data': row.get('answer_intro', '')},
+                {'type': 'intro', 'data': strip_html(row.get('answer_intro', ''))},
             ]
             for st in subtopics:
-                content.append({'type': 'title', 'data': f"# {st.get('subtitle', '')}"})
-                content.append({'type': 'description', 'data': st.get('description', '')})
-            content.append({'type': 'outro', 'data': row.get('answer_outro', '')})
+                content.append({'type': 'title', 'data': f"# {strip_html(st.get('subtitle', ''))}"})
+                content.append({'type': 'description', 'data': strip_html(st.get('description', ''))})
+            content.append({'type': 'outro', 'data': strip_html(row.get('answer_outro', ''))})
             content.append({'type': 'suggestions', 'data': suggests})
+
+            content = [c for c in content if c.get('data') is not None]
 
             a_line = {
                 '_id': a_id,
@@ -155,7 +160,7 @@ def main():
     print("\n2. 구조화 중...")
     product_map = {}
     for _, row in df_product.iterrows():
-        cno = str(row['content_no']).strip()
+        cno = int(row['content_no'])
         product_map[cno] = {
             'content_nm': row.get('content_nm', ''),
             'headline': row.get('headline', ''),

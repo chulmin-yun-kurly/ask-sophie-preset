@@ -73,7 +73,7 @@ async def main():
     df_prepared = read_google_sheet(sheet_name='prepared_data')
     prep_map = {}
     for _, row in df_prepared.iterrows():
-        cno = str(row['content_no']).strip()
+        cno = int(row['content_no'])
         prep_map[cno] = {
             'key_description': row.get('key_description', ''),
         }
@@ -81,7 +81,7 @@ async def main():
     # 3. 질문 생성용 아이템 구성
     items = []
     for i, row in df_product.iterrows():
-        cno = str(row['content_no']).strip()
+        cno = int(row['content_no'])
         prep = prep_map.get(cno, {})
         items.append({
             'original_idx': i,

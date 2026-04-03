@@ -79,7 +79,7 @@ async def main():
     df_product = read_google_sheet(sheet_name='product_data')
     product_map = {}
     for _, row in df_product.iterrows():
-        cno = str(row['content_no']).strip()
+        cno = int(row['content_no'])
         product_map[cno] = {
             'content_nm': row.get('content_nm', ''),
             'strengths': row.get('strengths', ''),
@@ -91,7 +91,7 @@ async def main():
     df_prepared = read_google_sheet(sheet_name='prepared_data')
     prep_map = {}
     for _, row in df_prepared.iterrows():
-        cno = str(row['content_no']).strip()
+        cno = int(row['content_no'])
         prep_map[cno] = {
             'key_description': row.get('key_description', ''),
             'description': row.get('description', ''),
@@ -100,7 +100,7 @@ async def main():
     # 3. 답변 생성용 아이템 구성
     qa_items = []
     for _, row in df_qna.iterrows():
-        cno = str(row['content_no']).strip()
+        cno = int(row['content_no'])
         product = product_map.get(cno, {})
         prep = prep_map.get(cno, {})
         q_num = int(row['q_number'])
