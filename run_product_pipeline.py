@@ -4,8 +4,9 @@
 사용법:
     python run_product_pipeline.py              # 전체 실행
     python run_product_pipeline.py product      # 상품 소개 생성만
+    python run_product_pipeline.py question     # 상품별 질문 생성만
+    python run_product_pipeline.py answer       # 상품별 답변 생성만
     python run_product_pipeline.py suggest      # 관련 질문 매핑만
-    python run_product_pipeline.py product_qna  # 상품별 QnA 생성만
     python run_product_pipeline.py export       # JSON 내보내기만
 """
 import subprocess
@@ -17,16 +18,18 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 STEPS = [
     ('steps/product/generate_products.py', '상품 소개/홍보 텍스트 생성'),
-    ('steps/product/generate_product_qna.py', '상품별 QnA 생성'),
+    ('steps/product/generate_product_question.py', '상품별 질문 생성'),
+    ('steps/product/generate_product_answer.py', '상품별 답변 생성'),
     ('steps/product/build_product_suggestions.py', '관련 질문(suggest) 매핑'),
     ('steps/product/export_product_json.py', '상품 JSON 파일 내보내기'),
 ]
 
 STEP_MAP = {
     'product': [STEPS[0]],
-    'product_qna': [STEPS[1]],
-    'suggest': [STEPS[2]],
-    'export': [STEPS[3]],
+    'question': [STEPS[1]],
+    'answer': [STEPS[2]],
+    'suggest': [STEPS[3]],
+    'export': [STEPS[4]],
 }
 
 

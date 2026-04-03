@@ -15,7 +15,7 @@ MODEL_LIGHT = 'gpt-4.1-mini'       # 클러스터 병합, 레이블, 답변
 MODEL_EMBEDDING = 'text-embedding-3-small'
 
 # ── 배치 / 동시성 ────────────────────────────────
-PREPARE_BATCH_SIZE = 1
+PREPARE_BATCH_SIZE = 5
 PREPARE_MAX_CONCURRENT = 5
 
 QNA_BATCH_SIZE = 5

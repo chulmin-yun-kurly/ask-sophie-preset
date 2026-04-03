@@ -106,7 +106,7 @@ def export_product_qna(df_qna, product_map: dict):
                 'isActive': False,
                 'content': {
                     'answerType': 'INFO',
-                    'category': '',
+                    'category': row.get('category', ''),
                     'representative': row.get('question', ''),
                     'relatedQuestions': [],
                 },
