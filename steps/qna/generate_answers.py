@@ -91,31 +91,87 @@ async def main():
     semaphore = asyncio.Semaphore(CLUSTER_MAX_CONCURRENT)
 
     async def generate_answers_batch(batch):
+        """배치 답변 생성. 반환: {batch_내_position: answer_dict}"""
+        questions_text = ""
+        for i, item in enumerate(batch):
+            questions_text += f"\n  {i}. {item['question']}"
+            if item['content_info']:
+                questions_text += f"\n  [추천 상품 목록]\n{item['content_info']}"
+
+        user_prompt = answer_user_template.format(questions_text=questions_text)
+        parsed = await chat_json(MODEL_MAIN, answer_system_prompt, user_prompt, temperature=0.5)
+
+        batch_results = {}
+        for ans in parsed.get('answers', []):
+            if not isinstance(ans, dict):
+                continue
+            ans_idx = int(ans.get('index', -1))
+            if 0 <= ans_idx < len(batch):
+                batch_results[ans_idx] = {
+                    'question_echo': ans.get('question_echo', ''),
+                    'answer_intro': ans.get('answer_intro', ''),
+                    'subtopics': ans.get('subtopics', []),
+                    'answer_outro': ans.get('answer_outro', ''),
+                    'search_keywords': ans.get('search_keywords', []),
+                }
+        return batch_results
+
+    total_batches = (len(all_reps) + CLUSTER_ANSWER_BATCH_SIZE - 1) // CLUSTER_ANSWER_BATCH_SIZE
+
+    def _verify_echo(batch_items, batch_results):
+        """question_echo로 답변-질문 매핑 검증. 불일치 항목의 인덱스 목록 반환."""
+        mismatched = []
+        for pos, ans in batch_results.items():
+            echo = ans.get('question_echo', '')
+            expected = batch_items[pos]['question']
+            # echo의 앞 10자가 질문 원문에 포함되는지 확인
+            if echo and len(echo) >= 5 and echo[:10] not in expected:
+                mismatched.append(pos)
+        return mismatched
+
+    async def run_batch(batch_idx, batch_items):
         async with semaphore:
-            questions_text = ""
-            for i, item in enumerate(batch):
-                questions_text += f"\n  {i}. {item['question']}"
-                if item['content_info']:
-                    questions_text += f"\n  [추천 상품 목록]\n{item['content_info']}"
+            print(f"   배치 {batch_idx + 1}/{total_batches} 처리 중...")
+            try:
+                batch_results = await generate_answers_batch(batch_items)
+                need_individual_retry = False
 
-            user_prompt = answer_user_template.format(questions_text=questions_text)
+                if len(batch_results) != len(batch_items):
+                    # 개수 누락
+                    print(f"   ⚠ 배치 {batch_idx + 1}: {len(batch_results)}/{len(batch_items)}개만 반환, "
+                          f"전체 폐기 후 개별 재시도")
+                    need_individual_retry = True
+                else:
+                    # 개수 일치 → question_echo로 내용 밀림 검증
+                    mismatched = _verify_echo(batch_items, batch_results)
+                    if mismatched:
+                        print(f"   ⚠ 배치 {batch_idx + 1}: 답변 밀림 감지 (인덱스 {mismatched}), "
+                              f"전체 폐기 후 개별 재시도")
+                        need_individual_retry = True
 
-            parsed = await chat_json(MODEL_MAIN, answer_system_prompt, user_prompt, temperature=0.5)
-            for ans in parsed.get('answers', []):
-                ans_idx = ans.get('index', -1)
-                if 0 <= ans_idx < len(batch):
-                    df_idx = batch[ans_idx]['df_idx']
-                    results_map[df_idx] = {
-                        'answer_intro': ans.get('answer_intro', ''),
-                        'subtopics': ans.get('subtopics', []),
-                        'answer_outro': ans.get('answer_outro', ''),
-                        'search_keywords': ans.get('search_keywords', []),
-                    }
+                if need_individual_retry:
+                    for i, item in enumerate(batch_items):
+                        single_result = await generate_answers_batch([item])
+                        if 0 in single_result:
+                            ans = single_result[0]
+                            ans.pop('question_echo', None)
+                            results_map[item['df_idx']] = ans
+                        else:
+                            print(f"   ✗ 개별 재시도도 실패: {item['question'][:40]}")
+                else:
+                    for pos, ans in batch_results.items():
+                        ans.pop('question_echo', None)
+                        results_map[batch_items[pos]['df_idx']] = ans
+
+                print(f"   배치 {batch_idx + 1}/{total_batches} 완료")
+            except Exception as e:
+                print(f"   배치 {batch_idx + 1}/{total_batches} ERROR: {e}")
 
     tasks = []
     for i in range(0, len(all_reps), CLUSTER_ANSWER_BATCH_SIZE):
+        batch_idx = i // CLUSTER_ANSWER_BATCH_SIZE
         batch = all_reps[i:i + CLUSTER_ANSWER_BATCH_SIZE]
-        tasks.append(generate_answers_batch(batch))
+        tasks.append(run_batch(batch_idx, batch))
     await asyncio.gather(*tasks)
 
     print(f"   생성 완료 ({len(results_map)}개)")

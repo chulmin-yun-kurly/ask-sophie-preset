@@ -1,9 +1,6 @@
 아래 질문들에 대해 각각 답변과 검색 키워드를 생성해주세요.
 
-답변 규칙:
-- 각 질문 아래에 [추천 상품 목록]이 제공됩니다. 답변은 이 상품들의 실제 정보만 참고하세요.
-- 상품 목록에 없는 브랜드명, 수치(산도, 폴리페놀 등), 구체적 특성을 답변에 포함하지 마세요.
-- 구체적인 브랜드명보다는 상품의 특성이나 장점을 자연스럽게 설명하세요.
+[중요] 반드시 모든 질문에 대해 빠짐없이 답변하세요. 유사해 보이는 질문이 있더라도 각각 개별 답변을 생성하고, 응답의 index는 입력된 질문 번호와 정확히 일치해야 합니다. 질문을 건너뛰거나 합치지 마세요.
 
 검색 키워드 규칙:
 - 이 질문을 한 소비자가 실제로 검색창에 입력할 법한 키워드 2~3개
@@ -14,7 +11,7 @@
 
 JSON 형식으로 응답:
 {{"answers": [
-  {{"index": 0, "answer_intro": "...", "subtopics": [{{"subtitle": "# ...", "description": "..."}}], "answer_outro": "...", "search_keywords": ["키워드1", "키워드2"]}},
-  {{"index": 1, "answer_intro": "...", "subtopics": [{{"subtitle": "# ...", "description": "..."}}], "answer_outro": "...", "search_keywords": ["키워드1", "키워드2", "키워드3"]}},
+  {{"index": 0, "question_echo": "해당 질문 원문의 첫 15자", "answer_intro": "...", "subtopics": [{{"subtitle": "# ...", "description": "..."}}], "answer_outro": "...", "search_keywords": ["키워드1", "키워드2"]}},
+  {{"index": 1, "question_echo": "해당 질문 원문의 첫 15자", "answer_intro": "...", "subtopics": [{{"subtitle": "# ...", "description": "..."}}], "answer_outro": "...", "search_keywords": ["키워드1", "키워드2", "키워드3"]}},
   ...
 ]}}

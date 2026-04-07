@@ -45,17 +45,17 @@ def export_product(product_map: dict):
                 {'type': 'productNos', 'data': [cno]},
             ]
 
-            if product.get('strengths', ''):
+            if product.get('features', ''):
                 content.append({'type': 'title', 'data': '# 특장점'})
-                content.append({'type': 'description', 'data': strip_html(product['strengths'])})
+                content.append({'type': 'description', 'data': strip_html(product['features'])})
 
-            if product.get('stories', ''):
+            if product.get('story', ''):
                 content.append({'type': 'title', 'data': '# 스토리'})
-                content.append({'type': 'description', 'data': strip_html(product['stories'])})
+                content.append({'type': 'description', 'data': strip_html(product['story'])})
 
-            if product.get('targetUser', ''):
+            if product.get('recommendation', ''):
                 content.append({'type': 'title', 'data': '# 이런 분께 추천해요'})
-                content.append({'type': 'description', 'data': strip_html(product['targetUser'])})
+                content.append({'type': 'description', 'data': strip_html(product['recommendation'])})
 
             content.append({'type': 'outro', 'data': None})
             content.append({'type': 'suggestions', 'data': product.get('suggest', [])})
@@ -164,9 +164,9 @@ def main():
         product_map[cno] = {
             'content_nm': row.get('content_nm', ''),
             'headline': row.get('headline', ''),
-            'strengths': row.get('strengths', ''),
-            'stories': row.get('stories', ''),
-            'targetUser': row.get('targetUser', ''),
+            'features': row.get('features', ''),
+            'story': row.get('story', ''),
+            'recommendation': row.get('recommendation', ''),
             'suggest': json.loads(row['suggest']) if row.get('suggest') else [],
         }
 

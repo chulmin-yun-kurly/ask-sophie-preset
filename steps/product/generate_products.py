@@ -52,14 +52,16 @@ async def process_all(items: list[dict]) -> dict:
             try:
                 batch_results = await generate_batch(batch_items, system_prompt, user_template)
                 for r in batch_results:
-                    idx = r.get('index', -1)
+                    if not isinstance(r, dict):
+                        continue
+                    idx = int(r.get('index', -1))
                     if 0 <= idx < len(batch_items):
                         original_idx = batch_items[idx]['original_idx']
                         results[original_idx] = {
                             'headline': _ensure_str(r.get('headline', '')),
-                            'strengths': _ensure_str(r.get('strengths', '')),
-                            'stories': _ensure_str(r.get('stories', '')),
-                            'targetUser': _ensure_str(r.get('targetUser', '')),
+                            'features': _ensure_str(r.get('features', '')),
+                            'story': _ensure_str(r.get('story', '')),
+                            'recommendation': _ensure_str(r.get('recommendation', '')),
                         }
                 print(f"   배치 {batch_idx + 1}/{len(batches)} 완료")
             except Exception as e:
@@ -97,7 +99,7 @@ async def main():
 
     # 4. 결과 DataFrame 구성
     print("\n3. 결과 정리 중...")
-    product_fields = ['headline', 'strengths', 'stories', 'targetUser']
+    product_fields = ['headline', 'features', 'story', 'recommendation']
     df_out = df[['content_no', 'content_nm']].copy()
     for field in product_fields:
         df_out[field] = [results.get(i, {}).get(field, '') for i in range(len(df))]

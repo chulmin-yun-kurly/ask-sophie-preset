@@ -172,15 +172,15 @@ for cat in selected_cats:
                     if product and st.toggle(f"상품 정보", key=f"product_{row['id']}_{cno}", value=False):
                         if product.get('headline'):
                             st.html(product['headline'])
-                        if product.get('strengths'):
+                        if product.get('features'):
                             st.markdown("**특장점**")
-                            st.html(product['strengths'])
-                        if product.get('stories'):
+                            st.html(product['features'])
+                        if product.get('story'):
                             st.markdown("**스토리**")
-                            st.html(product['stories'])
-                        if product.get('targetUser'):
+                            st.html(product['story'])
+                        if product.get('recommendation'):
                             st.markdown("**이런 분께 추천해요**")
-                            st.html(product['targetUser'])
+                            st.html(product['recommendation'])
                         product_suggests = product.get('suggest', [])
                         if product_suggests:
                             st.markdown("**관련 질문**")

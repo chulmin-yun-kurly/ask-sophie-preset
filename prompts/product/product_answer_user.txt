@@ -4,7 +4,7 @@
 
 JSON 형식으로 응답:
 {{"results": [
-  {{"index": 0, "answer_intro": "Intro", "subtopics": [{{"subtitle": "Subtitle 1", "description": "Description 1"}},{{"subtitle": "Subtitle 2", "description": "Description 2"}}], "answer_outro": "Outro"}},
-  {{"index": 1, "answer_intro": "Intro", "subtopics": [{{"subtitle": "Subtitle 1", "description": "Description 1"}},{{"subtitle": "Subtitle 2", "description": "Description 2"}}], "answer_outro": "Outro"}},
+  {{"index": 0, "answer_intro": "intro", "subtopics": [{{"subtitle": "subtitle_1", "description": "description_1"}},{{"subtitle": "subtitle_2", "description": "description_2"}}], "answer_outro": "outro"}},
+  {{"index": 1, "answer_intro": "intro", "subtopics": [{{"subtitle": "subtitle_1", "description": "description_1"}},{{"subtitle": "subtitle_2", "description": "description_2"}}], "answer_outro": "outro"}},
   ...
 ]}}

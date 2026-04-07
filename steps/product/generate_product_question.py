@@ -19,9 +19,9 @@ async def generate_questions_batch(items: list[dict], system_prompt: str, user_t
 [상품 #{pos}]
 상품명: {item['content_nm']}
 핵심 요약: {item['key_description']}
-특장점: {item['strengths']}
-스토리: {item['stories']}
-추천 대상: {item['targetUser']}
+특장점: {item['features']}
+스토리: {item['story']}
+추천 대상: {item['recommendation']}
 """
 
     user_prompt = user_template.format(products_text=products_text)
@@ -49,7 +49,9 @@ async def generate_all_questions(items: list[dict]) -> dict:
             try:
                 batch_results = await generate_questions_batch(batch_items, system_prompt, user_template)
                 for r in batch_results:
-                    idx = r.get('index', -1)
+                    if not isinstance(r, dict):
+                        continue
+                    idx = int(r.get('index', -1))
                     if 0 <= idx < len(batch_items):
                         original_idx = batch_items[idx]['original_idx']
                         results[original_idx] = r.get('questions', [])
@@ -88,9 +90,9 @@ async def main():
             'content_no': cno,
             'content_nm': row.get('content_nm', ''),
             'key_description': prep.get('key_description', ''),
-            'strengths': row.get('strengths', ''),
-            'stories': row.get('stories', ''),
-            'targetUser': row.get('targetUser', ''),
+            'features': row.get('features', ''),
+            'story': row.get('story', ''),
+            'recommendation': row.get('recommendation', ''),
         })
 
     # 4. 질문 생성

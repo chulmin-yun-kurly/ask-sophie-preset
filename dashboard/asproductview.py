@@ -76,23 +76,23 @@ for cno, nm, product in filtered_items:
             st.markdown("**헤드라인**")
             st.html(f'<div style="font-size:16px;font-weight:600;margin:4px 0 12px">{headline}</div>')
 
-        # strengths
-        strengths = product.get('strengths', '')
-        if strengths:
+        # features
+        features = product.get('features', '')
+        if features:
             st.markdown("**특장점**")
-            st.html(f'<div style="background:#f8f9fa;padding:12px 16px;border-radius:8px;margin:4px 0 12px;font-size:14px;line-height:1.7">{strengths}</div>')
+            st.html(f'<div style="background:#f8f9fa;padding:12px 16px;border-radius:8px;margin:4px 0 12px;font-size:14px;line-height:1.7">{features}</div>')
 
-        # stories
-        stories = product.get('stories', '')
-        if stories:
+        # story
+        story = product.get('story', '')
+        if story:
             st.markdown("**스토리**")
-            st.html(f'<div style="background:#f8f9fa;padding:12px 16px;border-radius:8px;margin:4px 0 12px;font-size:14px;line-height:1.7">{stories}</div>')
+            st.html(f'<div style="background:#f8f9fa;padding:12px 16px;border-radius:8px;margin:4px 0 12px;font-size:14px;line-height:1.7">{story}</div>')
 
-        # targetUser
-        target_user = product.get('targetUser', '')
-        if target_user:
+        # recommendation
+        recommendation = product.get('recommendation', '')
+        if recommendation:
             st.markdown("**이런 분께 추천해요**")
-            st.html(f'<div style="background:#f8f9fa;padding:12px 16px;border-radius:8px;margin:4px 0 12px;font-size:14px;line-height:1.7">{target_user}</div>')
+            st.html(f'<div style="background:#f8f9fa;padding:12px 16px;border-radius:8px;margin:4px 0 12px;font-size:14px;line-height:1.7">{recommendation}</div>')
 
         # suggest (연관 질문)
         suggest_list = product.get('suggest', [])

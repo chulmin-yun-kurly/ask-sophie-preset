@@ -20,9 +20,9 @@ async def generate_answers_batch(qa_items: list[dict], system_prompt: str, user_
 상품명: {item['content_nm']}
 질문: {item['question']}
 핵심 요약: {item['key_description']}
-특장점: {item['strengths']}
-스토리: {item['stories']}
-추천 대상: {item['targetUser']}
+특장점: {item['features']}
+스토리: {item['story']}
+추천 대상: {item['recommendation']}
 상세 설명: {item['description']}
 """
 
@@ -51,7 +51,9 @@ async def generate_all_answers(qa_items: list[dict]) -> dict:
             try:
                 batch_results = await generate_answers_batch(batch_items, system_prompt, user_template)
                 for r in batch_results:
-                    idx = r.get('index', -1)
+                    if not isinstance(r, dict):
+                        continue
+                    idx = int(r.get('index', -1))
                     if 0 <= idx < len(batch_items):
                         key = batch_items[idx]['qa_key']
                         results[key] = {
@@ -82,9 +84,9 @@ async def main():
         cno = int(row['content_no'])
         product_map[cno] = {
             'content_nm': row.get('content_nm', ''),
-            'strengths': row.get('strengths', ''),
-            'stories': row.get('stories', ''),
-            'targetUser': row.get('targetUser', ''),
+            'features': row.get('features', ''),
+            'story': row.get('story', ''),
+            'recommendation': row.get('recommendation', ''),
         }
 
     print("   prepared_data 읽는 중...")
@@ -114,9 +116,9 @@ async def main():
             'q_number': q_num,
             'key_description': prep.get('key_description', ''),
             'description': prep.get('description', ''),
-            'strengths': product.get('strengths', ''),
-            'stories': product.get('stories', ''),
-            'targetUser': product.get('targetUser', ''),
+            'features': product.get('features', ''),
+            'story': product.get('story', ''),
+            'recommendation': product.get('recommendation', ''),
         })
 
     # 4. 답변 생성
