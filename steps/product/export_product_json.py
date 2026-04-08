@@ -35,7 +35,7 @@ def export_product(product_map: dict):
     with open(questions_file, 'w', encoding='utf-8') as f:
         for cno, product in product_map.items():
             line = {
-                '_id': f'pq_{cno}',
+                'questionId': f'pq_{cno}',
                 'productNo': cno,
                 'isEntry': False,
                 'isActive': False,
@@ -78,7 +78,7 @@ def export_product(product_map: dict):
             content = [c for c in content if c.get('data') is not None]
 
             line = {
-                '_id': f'pa_{cno}',
+                'answerId': f'pa_{cno}',
                 'questionId': f'pq_{cno}',
                 'isActive': False,
                 'answers': [{'content': content}],
@@ -119,7 +119,7 @@ def export_product_qna(df_qna, product_map: dict):
 
             # question JSONL
             q_line = {
-                '_id': q_id,
+                'questionId': q_id,
                 'productNo': cno,
                 'isEntry': False,
                 'isActive': False,
@@ -156,7 +156,7 @@ def export_product_qna(df_qna, product_map: dict):
             content = [c for c in content if c.get('data') is not None]
 
             a_line = {
-                '_id': a_id,
+                'answerId': a_id,
                 'questionId': q_id,
                 'isActive': False,
                 'answers': [{'content': content}],

@@ -97,7 +97,7 @@ def main():
             mapped_category = category_type_map.get(cat['category'], cat['category'])
             for group in cat['groups']:
                 line = {
-                    '_id': group['id'],
+                    'questionId': group['id'],
                     'keyword': DEFAULT_KEYWORD,
                     'isEntry': False,
                     'isActive': False,
@@ -162,7 +162,7 @@ def main():
                 content = [c for c in content if c.get('data') is not None]
 
                 line = {
-                    '_id': f"a_{group['id']}",
+                    'answerId': f"a_{group['id']}",
                     'questionId': group['id'],
                     'isActive': False,
                     'answers': [{'content': content}],

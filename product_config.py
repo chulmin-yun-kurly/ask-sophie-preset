@@ -14,6 +14,7 @@ class ProductConfig:
     product_name: str
     sheet_id: str
     knowledge_file: str
+    id_prefix: str
 
 
 def load_product_config(product_id: str) -> ProductConfig:
@@ -28,7 +29,18 @@ def load_product_config(product_id: str) -> ProductConfig:
         product_name=data['product_name'],
         sheet_id=data['sheet_id'],
         knowledge_file=data['knowledge_file'],
+        id_prefix=str(data.get('id_prefix', '')),
     )
+
+
+def load_all_product_configs() -> list[ProductConfig]:
+    """products/ 디렉토리의 모든 상품 설정을 로드합니다."""
+    configs = []
+    for fname in sorted(os.listdir(PRODUCTS_DIR)):
+        if fname.endswith('.yaml'):
+            product_id = fname[:-5]
+            configs.append(load_product_config(product_id))
+    return configs
 
 
 _current: ProductConfig | None = None

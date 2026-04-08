@@ -26,9 +26,13 @@ def run_pipeline(script: str, label: str, product_id: str) -> bool:
     print(f"{'#'*60}\n")
 
     start = time.time()
+    env = os.environ.copy()
+    env['PRODUCT_ID'] = product_id
+    env['PYTHONPATH'] = ROOT_DIR + os.pathsep + env.get('PYTHONPATH', '')
     result = subprocess.run(
         [sys.executable, script, '--product', product_id],
         cwd=ROOT_DIR,
+        env=env,
     )
     elapsed = time.time() - start
 
@@ -37,6 +41,30 @@ def run_pipeline(script: str, label: str, product_id: str) -> bool:
         return False
 
     print(f"\n✓ {label} 완료 ({elapsed:.1f}초)")
+    return True
+
+
+def run_merge() -> bool:
+    """전 상품 JSONL 통합 (상품 무관)"""
+    print(f"\n{'#'*60}")
+    print(f"  JSONL 통합 (전 상품)")
+    print(f"{'#'*60}\n")
+
+    start = time.time()
+    env = os.environ.copy()
+    env['PYTHONPATH'] = ROOT_DIR + os.pathsep + env.get('PYTHONPATH', '')
+    result = subprocess.run(
+        [sys.executable, 'steps/merge_jsonl.py'],
+        cwd=ROOT_DIR,
+        env=env,
+    )
+    elapsed = time.time() - start
+
+    if result.returncode != 0:
+        print(f"\n✗ JSONL 통합 실패 ({elapsed:.1f}초)")
+        return False
+
+    print(f"\n✓ JSONL 통합 완료 ({elapsed:.1f}초)")
     return True
 
 
@@ -51,6 +79,8 @@ def main():
         'product': ('run_product_pipeline.py', '상품 파이프라인'),
     }
 
+    valid_targets = set(pipelines.keys()) | {'merge'}
+
     if not args.targets:
         to_run = [pipelines['qna'], pipelines['product']]
     else:
@@ -58,15 +88,23 @@ def main():
         for t in args.targets:
             if t in pipelines:
                 to_run.append(pipelines[t])
+            elif t == 'merge':
+                pass  # merge는 아래에서 별도 처리
             else:
                 print(f"알 수 없는 대상: {t}")
-                print(f"사용 가능: {', '.join(pipelines.keys())}")
+                print(f"사용 가능: {', '.join(sorted(valid_targets))}")
                 sys.exit(1)
 
     total_start = time.time()
 
     for script, label in to_run:
         if not run_pipeline(script, label, args.product):
+            print("\n파이프라인 중단.")
+            sys.exit(1)
+
+    # JSONL 통합 (전체 실행 또는 명시적 merge 지정 시) — 전 상품 통합
+    if not args.targets or 'merge' in args.targets:
+        if not run_merge():
             print("\n파이프라인 중단.")
             sys.exit(1)
 
