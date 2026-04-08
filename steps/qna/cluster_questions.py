@@ -1,6 +1,6 @@
 """
 inverted_questions.csv를 읽어 질문을 클러스터링하고,
-LLM으로 병합/레이블을 생성합니다.
+LLM으로 병합합니다.
 """
 import json
 import asyncio
@@ -64,25 +64,6 @@ async def merge_cluster_questions(category: str, cluster: dict) -> dict:
             })
 
     return {'groups': result_groups}
-
-
-async def generate_sub_labels(cluster_tree: dict) -> dict:
-    """클러스터 레이블을 생성합니다."""
-    clusters_text = ""
-    for category in cluster_tree:
-        for label in sorted(cluster_tree[category].keys()):
-            cluster = cluster_tree[category][label]
-            rep = cluster['representative']
-            sample_qs = cluster['questions'][:7]
-            qs_text = "\n".join(f"    - {q}" for q in sample_qs)
-            clusters_text += f"\n[{category} / 클러스터 {label}] (대표: {rep}, {len(cluster['questions'])}개 질문)\n{qs_text}\n"
-
-    label_system = build_system_prompt(load_prompt('qna/label_system.txt'))
-    label_user = load_prompt('qna/label_user.txt').format(clusters_text=clusters_text)
-
-    parsed = await chat_json(MODEL_LIGHT, label_system, label_user, temperature=0.3)
-
-    return parsed.get('labels', {})
 
 
 async def main():
@@ -247,15 +228,9 @@ async def main():
     cluster_tree = merged_tree
 
     # ──────────────────────────────────────────────
-    # 5. LLM으로 클러스터 레이블 부여
+    # 5. 결과 DataFrame 생성 & 스프레드시트 저장
     # ──────────────────────────────────────────────
-    print("\n5. 클러스터 레이블 생성 중...")
-    sub_labels_map = await generate_sub_labels(cluster_tree)
-
-    # ──────────────────────────────────────────────
-    # 6. 결과 DataFrame 생성 & 스프레드시트 저장
-    # ──────────────────────────────────────────────
-    print("\n6. 결과 저장 중...")
+    print("\n5. 결과 저장 중...")
 
     rows = []
     for category in cluster_tree:
@@ -266,7 +241,7 @@ async def main():
             rows.append({
                 'category': category,
                 'sub_group': label,
-                'sub_group_label': sub_labels_map.get(label_key, ''),
+                'sub_group_label': '',
                 'representative': cluster['representative'],
                 'question_count': len(cluster['questions']),
                 'content_count': len(cluster['content_nos']),
@@ -291,7 +266,7 @@ async def main():
             current_cat = row['category']
             cat_total = df_result[df_result['category'] == current_cat]['question_count'].sum()
             print(f"\n   ▸ {row['category']} (총 {cat_total}개 질문)")
-        print(f"       클러스터 {row['sub_group']} [{row['sub_group_label']}]: "
+        print(f"       클러스터 {row['sub_group']}: "
               f"질문 {row['question_count']}개, 상품 {row['content_count']}개")
         print(f"         대표: {row['representative']}")
 
