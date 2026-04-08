@@ -2,4 +2,5 @@ product_id: olive_oil
 product_name: "올리브오일"
 sheet_id: "19c8o63Lck04VWeOHyEXiEcYDBv92LcISR17xP7UZpfs"
 knowledge_file: "olive_oil.md"
+categories_file: "olive_oil.txt"
 id_prefix: "0"
