@@ -56,6 +56,7 @@ def export_product(product_map: dict):
         for cno, product in product_map.items():
             content = [
                 {'type': 'headline', 'data': ANSWER_HEADLINES.get('SUMMARY', '')},
+                {'type': 'intro', 'data': strip_html(product.get('intro', '')) or None},
                 {'type': 'title', 'data': strip_html(product.get('headline', ''))},
                 {'type': 'productNos', 'data': [cno]},
             ]
@@ -72,7 +73,7 @@ def export_product(product_map: dict):
                 content.append({'type': 'title', 'data': '# 이런 분께 추천해요'})
                 content.append(_to_bullet_or_desc(strip_html(product['recommendation'])))
 
-            content.append({'type': 'outro', 'data': None})
+            content.append({'type': 'outro', 'data': strip_html(product.get('outro', '')) or None})
             content.append({'type': 'suggestions', 'data': product.get('suggest', [])})
 
             content = [c for c in content if c.get('data') is not None]

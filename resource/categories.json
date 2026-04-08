@@ -1,6 +1,7 @@
 [
+  {"id": 0,  "name": "Mix",       "type": "MIX"},
   {"id": 1,  "name": "정성적 특성",       "type": "SENSORY"},
-  {"id": 2,  "name": "품질/인증",         "type": "QUALITY"},
+  {"id": 2,  "name": "품질/스펙",         "type": "QUALITY"},
   {"id": 3,  "name": "명시적 정보 기반",   "type": "EXPLICIT"},
   {"id": 4,  "name": "차별점",            "type": "DIFF"},
   {"id": 5,  "name": "용도/상황",         "type": "PURPOSE"},

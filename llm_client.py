@@ -17,13 +17,18 @@ _knowledge_cache: dict[str, str] = {}
 
 
 def load_prompt(filename: str) -> str:
-    """prompts 디렉토리에서 프롬프트 파일을 읽어오고, {product_name}을 치환합니다."""
+    """prompts 디렉토리에서 프롬프트 파일을 읽어오고, {product_name}, {categories}를 치환합니다."""
     with open(os.path.join(PROMPTS_DIR, filename), 'r', encoding='utf-8') as f:
         text = f.read()
-    from product_config import get_current_product
+    from product_config import get_current_product, PRODUCTS_DIR
     product = get_current_product()
     if product:
         text = text.replace('{product_name}', product.product_name)
+        if '{categories}' in text and product.categories_file:
+            cat_path = os.path.join(PRODUCTS_DIR, 'categories', product.categories_file)
+            if os.path.exists(cat_path):
+                with open(cat_path, 'r', encoding='utf-8') as f:
+                    text = text.replace('{categories}', f.read().strip())
     return text
 
 

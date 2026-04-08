@@ -58,10 +58,12 @@ async def process_all(items: list[dict]) -> dict:
                     if 0 <= idx < len(batch_items):
                         original_idx = batch_items[idx]['original_idx']
                         results[original_idx] = {
+                            'intro': _ensure_str(r.get('intro', '')),
                             'headline': _ensure_str(r.get('headline', '')),
                             'features': _ensure_str(r.get('features', '')),
                             'story': _ensure_str(r.get('story', '')),
                             'recommendation': _ensure_str(r.get('recommendation', '')),
+                            'outro': _ensure_str(r.get('outro', '')),
                         }
                 print(f"   배치 {batch_idx + 1}/{len(batches)} 완료")
             except Exception as e:
@@ -99,7 +101,7 @@ async def main():
 
     # 4. 결과 DataFrame 구성
     print("\n3. 결과 정리 중...")
-    product_fields = ['headline', 'features', 'story', 'recommendation']
+    product_fields = ['intro', 'headline', 'features', 'story', 'recommendation', 'outro']
     df_out = df[['content_no', 'content_nm']].copy()
     for field in product_fields:
         df_out[field] = [results.get(i, {}).get(field, '') for i in range(len(df))]

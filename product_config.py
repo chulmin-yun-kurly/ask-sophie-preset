@@ -14,6 +14,7 @@ class ProductConfig:
     product_name: str
     sheet_id: str
     knowledge_file: str
+    categories_file: str
     id_prefix: str
 
 
@@ -29,6 +30,7 @@ def load_product_config(product_id: str) -> ProductConfig:
         product_name=data['product_name'],
         sheet_id=data['sheet_id'],
         knowledge_file=data['knowledge_file'],
+        categories_file=data.get('categories_file', ''),
         id_prefix=str(data.get('id_prefix', '')),
     )
 
