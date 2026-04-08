@@ -2,12 +2,16 @@
 prepared_data의 각 상품에 대해 소개 및 홍보 텍스트를 LLM으로 생성합니다.
 description이 있는 상품만 대상으로 합니다.
 이미 product_data에 존재하는 상품은 건너뛰고, 미처리분만 생성합니다.
+누락이 있으면 최대 MAX_RETRY_ROUNDS회 재시도합니다.
 """
 import asyncio
+import sys
 import pandas as pd
 from config import MODEL_MAIN, PREPARE_BATCH_SIZE, PREPARE_MAX_CONCURRENT
 from llm_client import load_prompt, build_system_prompt, chat_json
 from sheet_reader import read_google_sheet, write_dataframe_to_sheet
+
+MAX_RETRY_ROUNDS = 3
 
 
 def _ensure_str(value) -> str:
@@ -121,13 +125,29 @@ async def main():
         _verify_and_save(target_items, existing, {})
         return
 
-    # 3. LLM으로 미처리분 생성
-    print(f"\n3. 홍보 텍스트 생성 중 ({len(pending_items)}건)...")
-    new_results = await process_all(pending_items)
-    print(f"   생성 완료: {len(new_results)}건")
+    # 3. LLM으로 미처리분 생성 (재시도 포함)
+    all_new_results = {}
+    for attempt in range(1, MAX_RETRY_ROUNDS + 1):
+        # 이번 라운드에서 처리할 항목
+        still_pending = [item for item in pending_items if item['content_no'] not in all_new_results]
+        if not still_pending:
+            break
+
+        label = f"라운드 {attempt}/{MAX_RETRY_ROUNDS}" if attempt > 1 else "생성"
+        print(f"\n3. 홍보 텍스트 {label} ({len(still_pending)}건)...")
+        round_results = await process_all(still_pending)
+        all_new_results.update(round_results)
+        print(f"   {label} 완료: {len(round_results)}건 (누적: {len(all_new_results)}건)")
+
+        if len(all_new_results) == len(pending_items):
+            break
+
+        if attempt < MAX_RETRY_ROUNDS:
+            remaining = len(pending_items) - len(all_new_results)
+            print(f"   ⚠ {remaining}건 누락 → 재시도...")
 
     # 4. 기존 + 신규 병합 후 저장
-    _verify_and_save(target_items, existing, new_results)
+    _verify_and_save(target_items, existing, all_new_results)
 
 
 def _verify_and_save(target_items: list, existing: dict, new_results: dict):
@@ -160,6 +180,8 @@ def _verify_and_save(target_items: list, existing: dict, new_results: dict):
         print(" ✓")
     else:
         print(f" ✗ (차이 {len(target_items) - len(df_out)}건)")
+        print(f"\n✗ {MAX_RETRY_ROUNDS}회 재시도 후에도 누락이 있어 파이프라인을 중단합니다.")
+        sys.exit(1)
 
     # 저장
     print("\n5. 결과 저장 중...")

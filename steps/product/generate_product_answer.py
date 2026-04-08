@@ -1,13 +1,17 @@
 """
 product_qna 시트의 질문을 읽어 답변을 생성합니다.
 질문은 그대로 유지하고 답변 컬럼만 갱신합니다.
+누락이 있으면 최대 MAX_RETRY_ROUNDS회 재시도합니다.
 """
 import asyncio
 import json
+import sys
 import pandas as pd
 from config import MODEL_MAIN, PREPARE_BATCH_SIZE, PREPARE_MAX_CONCURRENT
 from llm_client import load_prompt, build_system_prompt, chat_json
 from sheet_reader import read_google_sheet, write_dataframe_to_sheet
+
+MAX_RETRY_ROUNDS = 3
 
 
 async def generate_answers_batch(qa_items: list[dict], system_prompt: str, user_template: str) -> list[dict]:
@@ -121,9 +125,33 @@ async def main():
             'recommendation': product.get('recommendation', ''),
         })
 
-    # 4. 답변 생성
-    print(f"\n2. 답변 생성 중... ({len(qa_items)}건)")
-    answer_results = await generate_all_answers(qa_items)
+    # 4. 답변 생성 (재시도 포함)
+    answer_results = {}
+    for attempt in range(1, MAX_RETRY_ROUNDS + 1):
+        pending = [item for item in qa_items if item['qa_key'] not in answer_results]
+        if not pending:
+            break
+
+        label = f"라운드 {attempt}/{MAX_RETRY_ROUNDS}" if attempt > 1 else "생성"
+        print(f"\n2. 답변 {label} ({len(pending)}건)...")
+        round_results = await generate_all_answers(pending)
+        answer_results.update(round_results)
+        print(f"   {label} 완료: {len(round_results)}건 (누적: {len(answer_results)}건)")
+
+        if len(answer_results) == len(qa_items):
+            break
+
+        if attempt < MAX_RETRY_ROUNDS:
+            remaining = len(qa_items) - len(answer_results)
+            print(f"   ⚠ {remaining}건 누락 → 재시도...")
+
+    # 검증
+    missing_count = len(qa_items) - len(answer_results)
+    if missing_count > 0:
+        missing_keys = [item['qa_key'] for item in qa_items if item['qa_key'] not in answer_results]
+        print(f"\n✗ {MAX_RETRY_ROUNDS}회 재시도 후에도 {missing_count}건 누락: {missing_keys[:10]}")
+        sys.exit(1)
+
     print(f"   답변 생성 완료: {len(answer_results)}건")
 
     # 5. 결과 DataFrame 구성 (질문은 그대로 유지)

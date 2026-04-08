@@ -1,13 +1,17 @@
 """
 각 상품에 대해 소비자 관점의 질문을 생성합니다.
 결과는 product_qna 시트에 저장됩니다 (답변 컬럼은 비워둠).
+누락이 있으면 최대 MAX_RETRY_ROUNDS회 재시도합니다.
 """
 import asyncio
 import json
+import sys
 import pandas as pd
 from config import MODEL_MAIN, PREPARE_BATCH_SIZE, PREPARE_MAX_CONCURRENT
 from llm_client import load_prompt, build_system_prompt, chat_json
 from sheet_reader import read_google_sheet, write_dataframe_to_sheet
+
+MAX_RETRY_ROUNDS = 3
 
 
 async def generate_questions_batch(items: list[dict], system_prompt: str, user_template: str) -> list[dict]:
@@ -95,9 +99,33 @@ async def main():
             'recommendation': row.get('recommendation', ''),
         })
 
-    # 4. 질문 생성
-    print("\n2. 질문 생성 중...")
-    question_results = await generate_all_questions(items)
+    # 4. 질문 생성 (재시도 포함)
+    question_results = {}
+    for attempt in range(1, MAX_RETRY_ROUNDS + 1):
+        pending = [item for item in items if item['original_idx'] not in question_results]
+        if not pending:
+            break
+
+        label = f"라운드 {attempt}/{MAX_RETRY_ROUNDS}" if attempt > 1 else "생성"
+        print(f"\n2. 질문 {label} ({len(pending)}건)...")
+        round_results = await generate_all_questions(pending)
+        question_results.update(round_results)
+        print(f"   {label} 완료: {len(round_results)}건 (누적: {len(question_results)}건)")
+
+        if len(question_results) == len(items):
+            break
+
+        if attempt < MAX_RETRY_ROUNDS:
+            remaining = len(items) - len(question_results)
+            print(f"   ⚠ {remaining}건 누락 → 재시도...")
+
+    # 검증
+    missing_count = len(items) - len(question_results)
+    if missing_count > 0:
+        missing_cnos = [item['content_no'] for item in items if item['original_idx'] not in question_results]
+        print(f"\n✗ {MAX_RETRY_ROUNDS}회 재시도 후에도 {missing_count}건 누락: {missing_cnos[:10]}")
+        sys.exit(1)
+
     print(f"   질문 생성 완료: {sum(len(qs) for qs in question_results.values())}개")
 
     # 5. 결과 DataFrame 구성 (답변 컬럼은 비워둠)
