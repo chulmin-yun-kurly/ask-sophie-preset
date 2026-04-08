@@ -181,10 +181,12 @@ def main():
         cno = int(row['content_no'])
         product_map[cno] = {
             'content_nm': row.get('content_nm', ''),
+            'intro': row.get('intro', ''),
             'headline': row.get('headline', ''),
             'features': row.get('features', ''),
             'story': row.get('story', ''),
             'recommendation': row.get('recommendation', ''),
+            'outro': row.get('outro', ''),
             'suggest': json.loads(row['suggest']) if row.get('suggest') else [],
         }
 
