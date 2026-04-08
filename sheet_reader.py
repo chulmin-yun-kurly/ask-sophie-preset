@@ -56,13 +56,14 @@ def get_credentials(client_secret_path: str = None) -> Credentials:
     return creds
 
 
-def read_google_sheet(sheet_url: str = None, sheet_name: str = None, client_secret_path: str = None) -> pd.DataFrame:
+def read_google_sheet(sheet_url: str = None, sheet_name: str = None, sheet_id: str = None, client_secret_path: str = None) -> pd.DataFrame:
     """
     구글 스프레드시트 URL에서 데이터를 읽어 DataFrame으로 반환합니다.
 
     Args:
         sheet_url: 구글 스프레드시트 URL (기본값: None, SHEET_ID 사용)
         sheet_name: 읽을 시트 이름 (기본값: None, gid의 시트 또는 첫 번째 시트)
+        sheet_id: 스프레드시트 ID (기본값: None, 상품 설정에서 가져옴)
         client_secret_path: OAuth 클라이언트 시크릿 JSON 파일 경로 (기본값: ~/.config/gws/client_secret.json)
 
     Returns:
@@ -83,7 +84,10 @@ def read_google_sheet(sheet_url: str = None, sheet_name: str = None, client_secr
                 gid = gid_match.group(1)
     else:
         # 기본 스프레드시트 사용
-        sheet_id = SHEET_ID
+        if sheet_id is None:
+            from product_config import get_current_product
+            product = get_current_product()
+            sheet_id = product.sheet_id if product else SHEET_ID
 
         # sheet_name이 주어진 경우 gid 찾기
         gid = None
@@ -137,6 +141,7 @@ def write_dataframe_to_sheet(
     df: pd.DataFrame,
     sheet_name: str,
     sheet_url: str = None,
+    sheet_id: str = None,
     replace_if_exists: bool = True,
     client_secret_path: str = None
 ) -> None:
@@ -147,6 +152,7 @@ def write_dataframe_to_sheet(
         df: 작성할 데이터프레임
         sheet_name: 생성할 시트 이름
         sheet_url: 구글 스프레드시트 URL (기본값: None, SHEET_ID 사용)
+        sheet_id: 스프레드시트 ID (기본값: None, 상품 설정에서 가져옴)
         replace_if_exists: 시트가 이미 존재하면 삭제 후 재생성 (기본값: True)
         client_secret_path: OAuth 클라이언트 시크릿 JSON 파일 경로
 
@@ -159,8 +165,10 @@ def write_dataframe_to_sheet(
         if not match:
             raise ValueError("유효하지 않은 구글 스프레드시트 URL입니다.")
         sheet_id = match.group(1)
-    else:
-        sheet_id = SHEET_ID
+    elif sheet_id is None:
+        from product_config import get_current_product
+        product = get_current_product()
+        sheet_id = product.sheet_id if product else SHEET_ID
 
     # Google Sheets API 사용
     creds = get_credentials(client_secret_path)

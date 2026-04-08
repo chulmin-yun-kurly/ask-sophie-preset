@@ -1,4 +1,4 @@
-아래 {item_count}개 올리브오일 상품의 description JSON을 분석하여, 각 상품의 key_description과 topic_keyword를 생성해주세요.
+아래 {item_count}개 {product_name} 상품의 description JSON을 분석하여, 각 상품의 key_description과 topic_keyword를 생성해주세요.
 
 각 상품의 description JSON에는 다음과 같은 필드가 포함되어 있습니다:
 - gv_type: 상세 페이지 섹션 유형 (main_title, kurlys_checkpoint, kurlys_pick, kurlys_tip, about_brand 등)

@@ -12,27 +12,36 @@ PROMPTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'prompts'
 
 client = AsyncOpenAI(api_key=OPENAI_API_KEY)
 
-# 배경 지식 (한 번만 로드)
-_knowledge_cache = None
+# 배경 지식 (상품별 캐시)
+_knowledge_cache: dict[str, str] = {}
 
 
 def load_prompt(filename: str) -> str:
-    """prompts 디렉토리에서 프롬프트 파일을 읽어옵니다."""
+    """prompts 디렉토리에서 프롬프트 파일을 읽어오고, {product_name}을 치환합니다."""
     with open(os.path.join(PROMPTS_DIR, filename), 'r', encoding='utf-8') as f:
-        return f.read()
+        text = f.read()
+    from product_config import get_current_product
+    product = get_current_product()
+    if product:
+        text = text.replace('{product_name}', product.product_name)
+    return text
 
 
 def load_knowledge() -> str:
-    """prompts/knowledge.md를 읽어 캐시합니다. 파일이 없거나 비어있으면 빈 문자열."""
-    global _knowledge_cache
-    if _knowledge_cache is None:
-        path = os.path.join(PROMPTS_DIR, 'shared', 'knowledge.md')
+    """상품별 knowledge 파일을 읽어 캐시합니다. 파일이 없거나 비어있으면 빈 문자열."""
+    from product_config import get_current_product
+    product = get_current_product()
+    knowledge_file = product.knowledge_file if product else 'olive_oil.md'
+    product_id = product.product_id if product else 'olive_oil'
+
+    if product_id not in _knowledge_cache:
+        path = os.path.join(PROMPTS_DIR, 'shared', 'knowledge', knowledge_file)
         if os.path.exists(path):
             with open(path, 'r', encoding='utf-8') as f:
-                _knowledge_cache = f.read().strip()
+                _knowledge_cache[product_id] = f.read().strip()
         else:
-            _knowledge_cache = ''
-    return _knowledge_cache
+            _knowledge_cache[product_id] = ''
+    return _knowledge_cache[product_id]
 
 
 def build_system_prompt(base_prompt: str) -> str:

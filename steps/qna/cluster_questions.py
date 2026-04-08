@@ -5,6 +5,7 @@ LLM으로 병합/레이블을 생성합니다.
 import json
 import asyncio
 import math
+import os
 import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
@@ -88,8 +89,11 @@ async def main():
     # ──────────────────────────────────────────────
     # 1. inverted_questions.csv 읽기
     # ──────────────────────────────────────────────
+    from product_config import get_output_dir
+    output_dir = get_output_dir()
+
     print("1. inverted_questions.csv 읽는 중...")
-    df_inv = pd.read_csv('output/inverted_questions.csv', encoding='utf-8-sig')
+    df_inv = pd.read_csv(os.path.join(output_dir, 'inverted_questions.csv'), encoding='utf-8-sig')
     print(f"   Read Shape: {df_inv.shape}")
 
     category_data = {}

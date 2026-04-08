@@ -5,17 +5,32 @@ import json
 import os
 from llm_client import strip_html
 from sheet_reader import read_google_sheet
+from product_config import get_output_dir
+
+RESOURCE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'resource')
+
+with open(os.path.join(RESOURCE_DIR, 'answer_headlines.json'), 'r', encoding='utf-8') as _f:
+    ANSWER_HEADLINES = json.load(_f)
+
+
+def _to_bullet_or_desc(text: str) -> dict:
+    """bullet list 형식이면 bulletList, 아니면 description으로 반환합니다."""
+    lines = [l.strip() for l in text.split('\n') if l.strip()]
+    if lines and all(l.startswith('- ') for l in lines):
+        return {'type': 'bulletList', 'data': [l[2:] for l in lines]}
+    return {'type': 'description', 'data': text}
 
 
 def export_product(product_map: dict):
     """product_data를 JSON + JSONL로 저장합니다."""
+    output_dir = get_output_dir()
     # product_data.json
-    product_map_file = 'output/product_data.json'
+    product_map_file = os.path.join(output_dir, 'product_data.json')
     with open(product_map_file, 'w', encoding='utf-8') as f:
         json.dump(product_map, f, ensure_ascii=False, indent=2)
 
     # product_questions.jsonl
-    questions_file = 'output/questions/question_product.jsonl'
+    questions_file = os.path.join(output_dir, 'questions', 'question_product.jsonl')
     q_count = 0
     with open(questions_file, 'w', encoding='utf-8') as f:
         for cno, product in product_map.items():
@@ -35,27 +50,27 @@ def export_product(product_map: dict):
             q_count += 1
 
     # product_answers.jsonl
-    answers_file = 'output/answers/answer_product.jsonl'
+    answers_file = os.path.join(output_dir, 'answers', 'answer_product.jsonl')
     a_count = 0
     with open(answers_file, 'w', encoding='utf-8') as f:
         for cno, product in product_map.items():
             content = [
-                {'type': 'intro', 'data': None},
-                {'type': 'headline', 'data': strip_html(product.get('headline', ''))},
+                {'type': 'headline', 'data': ANSWER_HEADLINES.get('SUMMARY', '')},
+                {'type': 'title', 'data': strip_html(product.get('headline', ''))},
                 {'type': 'productNos', 'data': [cno]},
             ]
 
             if product.get('features', ''):
                 content.append({'type': 'title', 'data': '# 특장점'})
-                content.append({'type': 'description', 'data': strip_html(product['features'])})
+                content.append(_to_bullet_or_desc(strip_html(product['features'])))
 
             if product.get('story', ''):
                 content.append({'type': 'title', 'data': '# 스토리'})
-                content.append({'type': 'description', 'data': strip_html(product['story'])})
+                content.append(_to_bullet_or_desc(strip_html(product['story'])))
 
             if product.get('recommendation', ''):
                 content.append({'type': 'title', 'data': '# 이런 분께 추천해요'})
-                content.append({'type': 'description', 'data': strip_html(product['recommendation'])})
+                content.append(_to_bullet_or_desc(strip_html(product['recommendation'])))
 
             content.append({'type': 'outro', 'data': None})
             content.append({'type': 'suggestions', 'data': product.get('suggest', [])})
@@ -66,7 +81,7 @@ def export_product(product_map: dict):
                 '_id': f'pa_{cno}',
                 'questionId': f'pq_{cno}',
                 'isActive': False,
-                'content': content,
+                'answers': [{'content': content}],
             }
             f.write(json.dumps(line, ensure_ascii=False) + '\n')
             a_count += 1
@@ -78,8 +93,9 @@ def export_product(product_map: dict):
 
 def export_product_qna(df_qna, product_map: dict):
     """product_qna 시트를 INFO 타입 JSONL로 저장합니다."""
-    pqq_file = 'output/questions/question_product_qna.jsonl'
-    pqa_file = 'output/answers/answer_product_qna.jsonl'
+    output_dir = get_output_dir()
+    pqq_file = os.path.join(output_dir, 'questions', 'question_product_qna.jsonl')
+    pqa_file = os.path.join(output_dir, 'answers', 'answer_product_qna.jsonl')
     q_count = 0
     a_count = 0
 
@@ -128,6 +144,7 @@ def export_product_qna(df_qna, product_map: dict):
                 subtopics = subtopics_raw if subtopics_raw else []
 
             content = [
+                {'type': 'headline', 'data': ANSWER_HEADLINES.get('INFO', '')},
                 {'type': 'intro', 'data': strip_html(row.get('answer_intro', ''))},
             ]
             for st in subtopics:
@@ -142,7 +159,7 @@ def export_product_qna(df_qna, product_map: dict):
                 '_id': a_id,
                 'questionId': q_id,
                 'isActive': False,
-                'content': content,
+                'answers': [{'content': content}],
             }
             fa.write(json.dumps(a_line, ensure_ascii=False) + '\n')
             a_count += 1
@@ -170,9 +187,9 @@ def main():
             'suggest': json.loads(row['suggest']) if row.get('suggest') else [],
         }
 
-    os.makedirs('output', exist_ok=True)
-    os.makedirs('output/questions', exist_ok=True)
-    os.makedirs('output/answers', exist_ok=True)
+    output_dir = get_output_dir()
+    os.makedirs(os.path.join(output_dir, 'questions'), exist_ok=True)
+    os.makedirs(os.path.join(output_dir, 'answers'), exist_ok=True)
 
     # product JSONL 저장
     print("\n3. product JSONL 저장 중...")

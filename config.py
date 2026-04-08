@@ -6,6 +6,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# ── 상품 ──────────────────────────────────────────
+PRODUCT_ID = os.environ.get('PRODUCT_ID', 'olive_oil')
+
 # ── OpenAI ────────────────────────────────────────
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
 

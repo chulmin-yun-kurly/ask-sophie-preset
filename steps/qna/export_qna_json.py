@@ -6,15 +6,18 @@ import json
 import os
 from llm_client import strip_html
 from sheet_reader import read_google_sheet
+from product_config import get_current_product, get_output_dir
 
 RESOURCE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'resource')
 
 
 def main():
-    # 1. 카테고리 매핑 로드
+    # 1. 카테고리 매핑 / headline 매핑 로드
     print("1. 카테고리 매핑 로드 중...")
     with open(os.path.join(RESOURCE_DIR, 'categories.json'), 'r', encoding='utf-8') as f:
         categories_list = json.load(f)
+    with open(os.path.join(RESOURCE_DIR, 'answer_headlines.json'), 'r', encoding='utf-8') as f:
+        answer_headlines = json.load(f)
     category_id_map = {c['name']: c['id'] for c in categories_list}
     category_type_map = {c['name']: c['type'] for c in categories_list}
     print(f"   카테고리 {len(category_id_map)}개")
@@ -68,9 +71,9 @@ def main():
     # category_id 순으로 정렬
     result = sorted(categories.values(), key=lambda x: x['category_id'])
 
-    os.makedirs('output', exist_ok=True)
-    os.makedirs('output/questions', exist_ok=True)
-    os.makedirs('output/answers', exist_ok=True)
+    output_dir = get_output_dir()
+    os.makedirs(os.path.join(output_dir, 'questions'), exist_ok=True)
+    os.makedirs(os.path.join(output_dir, 'answers'), exist_ok=True)
 
     # 4. JSON 저장
     output = {
@@ -80,14 +83,14 @@ def main():
         'categories': result
     }
 
-    json_file = 'output/qna_result.json'
+    json_file = os.path.join(output_dir, 'qna_result.json')
     with open(json_file, 'w', encoding='utf-8') as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
-    DEFAULT_KEYWORD = "올리브오일"
+    DEFAULT_KEYWORD = get_current_product().product_name
 
     # 6. questions.jsonl 저장 (ai_agent_question)
-    questions_file = 'output/questions/question_qna.jsonl'
+    questions_file = os.path.join(output_dir, 'questions', 'question_qna.jsonl')
     q_count = 0
     with open(questions_file, 'w', encoding='utf-8') as f:
         for cat in result:
@@ -109,12 +112,17 @@ def main():
                 q_count += 1
 
     # 7. answers.jsonl 저장 (ai_agent_answer)
-    answers_file = 'output/answers/answer_qna.jsonl'
+    answers_file = os.path.join(output_dir, 'answers', 'answer_qna.jsonl')
     a_count = 0
     with open(answers_file, 'w', encoding='utf-8') as f:
         for cat in result:
             for group in cat['groups']:
                 content = []
+
+                # headline
+                headline = answer_headlines.get('RECOMMEND', '')
+                if headline:
+                    content.append({'type': 'headline', 'data': headline})
 
                 # intro
                 content.append({
@@ -157,13 +165,13 @@ def main():
                     '_id': f"a_{group['id']}",
                     'questionId': group['id'],
                     'isActive': False,
-                    'content': content,
+                    'answers': [{'content': content}],
                 }
                 f.write(json.dumps(line, ensure_ascii=False) + '\n')
                 a_count += 1
 
     # 8. content_map.json 저장 (content_no → content_nm)
-    content_map_file = 'output/content_map.json'
+    content_map_file = os.path.join(output_dir, 'content_map.json')
     with open(content_map_file, 'w', encoding='utf-8') as f:
         json.dump(content_map, f, ensure_ascii=False, indent=2)
 

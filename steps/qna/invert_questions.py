@@ -4,8 +4,10 @@ qna_data 시트에서 question_list를 읽어
 완전 동일 질문은 content_no를 합칩니다.
 """
 import json
+import os
 import pandas as pd
 from sheet_reader import read_google_sheet
+from product_config import get_output_dir
 
 
 def main():
@@ -76,9 +78,8 @@ def main():
     df_out = pd.DataFrame(rows)
     df_out = df_out.sort_values(['category', 'content_count'], ascending=[True, False])
 
-    import os
-    os.makedirs('output', exist_ok=True)
-    output_file = 'output/inverted_questions.csv'
+    output_dir = get_output_dir()
+    output_file = os.path.join(output_dir, 'inverted_questions.csv')
     df_out.to_csv(output_file, index=False, encoding='utf-8-sig')
     print(f"\n{output_file} 저장 완료 ({len(df_out)}행)")
 

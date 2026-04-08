@@ -1,28 +1,30 @@
 """
-output/ 의 JSON 파일들을 합쳐서 dashboard/dashboard.json 을 생성합니다.
+output/{product_id}/ 의 JSON 파일들을 합쳐서 dashboard/dashboard.json 을 생성합니다.
 
 읽는 파일:
-  - output/qna_result.json
-  - output/content_map.json
-  - output/product_data.json (없으면 빈 dict)
+  - output/{product_id}/qna_result.json
+  - output/{product_id}/content_map.json
+  - output/{product_id}/product_data.json (없으면 빈 dict)
 """
 import json
 import os
+from product_config import get_output_dir
 
 
 def main():
-    print("1. output 파일 읽는 중...")
+    output_dir = get_output_dir()
+    print(f"1. {output_dir} 파일 읽는 중...")
 
-    with open('output/qna_result.json', 'r', encoding='utf-8') as f:
+    with open(os.path.join(output_dir, 'qna_result.json'), 'r', encoding='utf-8') as f:
         qna = json.load(f)
     print(f"   qna_result.json (카테고리 {qna['total_categories']}개, 그룹 {qna['total_groups']}개)")
 
-    with open('output/content_map.json', 'r', encoding='utf-8') as f:
+    with open(os.path.join(output_dir, 'content_map.json'), 'r', encoding='utf-8') as f:
         content_map = json.load(f)
     print(f"   content_map.json (상품 {len(content_map)}개)")
 
     product_data = {}
-    product_path = 'output/product_data.json'
+    product_path = os.path.join(output_dir, 'product_data.json')
     if os.path.exists(product_path):
         with open(product_path, 'r', encoding='utf-8') as f:
             product_data = json.load(f)

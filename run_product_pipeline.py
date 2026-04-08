@@ -2,13 +2,12 @@
 상품 파이프라인 실행기
 
 사용법:
-    python run_product_pipeline.py              # 전체 실행
-    python run_product_pipeline.py product      # 상품 소개 생성만
-    python run_product_pipeline.py question     # 상품별 질문 생성만
-    python run_product_pipeline.py answer       # 상품별 답변 생성만
-    python run_product_pipeline.py suggest      # 관련 질문 매핑만
-    python run_product_pipeline.py export       # JSON 내보내기만
+    python run_product_pipeline.py                          # 전체 실행
+    python run_product_pipeline.py --product olive_oil      # 상품 지정
+    python run_product_pipeline.py product                  # 상품 소개 생성만
+    python run_product_pipeline.py --product honey export   # 상품 지정 + 단계 선택
 """
+import argparse
 import subprocess
 import sys
 import os
@@ -33,7 +32,7 @@ STEP_MAP = {
 }
 
 
-def run_step(script: str, description: str) -> bool:
+def run_step(script: str, description: str, product_id: str) -> bool:
     print(f"\n{'='*60}")
     print(f"  {description}")
     print(f"  → {script}")
@@ -42,6 +41,7 @@ def run_step(script: str, description: str) -> bool:
     start = time.time()
     env = os.environ.copy()
     env['PYTHONPATH'] = ROOT_DIR + os.pathsep + env.get('PYTHONPATH', '')
+    env['PRODUCT_ID'] = product_id
     result = subprocess.run([sys.executable, script], env=env)
     elapsed = time.time() - start
 
@@ -54,13 +54,19 @@ def run_step(script: str, description: str) -> bool:
 
 
 def main():
-    targets = sys.argv[1:]
+    parser = argparse.ArgumentParser(description='상품 파이프라인 실행기')
+    parser.add_argument('--product', default='olive_oil', help='상품 ID (기본: olive_oil)')
+    parser.add_argument('targets', nargs='*', help='실행할 단계')
+    args = parser.parse_args()
 
-    if not targets:
+    from product_config import set_current_product
+    set_current_product(args.product)
+
+    if not args.targets:
         steps = STEPS
     else:
         steps = []
-        for t in targets:
+        for t in args.targets:
             if t in STEP_MAP:
                 steps.extend(STEP_MAP[t])
             else:
@@ -69,10 +75,10 @@ def main():
                 sys.exit(1)
 
     total_start = time.time()
-    print(f"상품 파이프라인 시작: {len(steps)}개 단계")
+    print(f"상품 파이프라인 시작: {len(steps)}개 단계 (상품: {args.product})")
 
     for script, description in steps:
-        if not run_step(script, description):
+        if not run_step(script, description, args.product):
             print("\n파이프라인 중단.")
             sys.exit(1)
 
