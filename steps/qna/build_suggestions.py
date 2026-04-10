@@ -7,7 +7,7 @@ import asyncio
 import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
-from config import MODEL_LIGHT, MODEL_EMBEDDING, EMBEDDING_BATCH_SIZE, CLUSTER_MAX_CONCURRENT
+from config import MODEL_LIGHT, MODEL_EMBEDDING, EMBEDDING_BATCH_SIZE, CLUSTER_MAX_CONCURRENT, TEMP_SUGGEST
 from llm_client import load_prompt, build_system_prompt, chat_json, get_embeddings
 from sheet_reader import read_google_sheet, write_dataframe_to_sheet
 
@@ -132,7 +132,7 @@ async def main():
                 cand_text=cand_text,
             )
 
-            parsed = await chat_json(MODEL_LIGHT, system_prompt, user_prompt, temperature=0.3)
+            parsed = await chat_json(MODEL_LIGHT, system_prompt, user_prompt, temperature=TEMP_SUGGEST)
 
             picked_indices = parsed.get('suggest', [])
             suggest_ids = []

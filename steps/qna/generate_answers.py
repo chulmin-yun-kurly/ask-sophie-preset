@@ -6,7 +6,7 @@ import json
 import os
 import asyncio
 import pandas as pd
-from config import MODEL_MAIN, CLUSTER_MAX_CONCURRENT, CLUSTER_ANSWER_BATCH_SIZE
+from config import MODEL_MAIN, CLUSTER_MAX_CONCURRENT, CLUSTER_ANSWER_BATCH_SIZE, TEMP_QNA_ANSWER
 from llm_client import load_prompt, build_system_prompt, chat_json
 from sheet_reader import read_google_sheet, write_dataframe_to_sheet
 
@@ -99,7 +99,7 @@ async def main():
                 questions_text += f"\n  [추천 상품 목록]\n{item['content_info']}"
 
         user_prompt = answer_user_template.format(questions_text=questions_text)
-        parsed = await chat_json(MODEL_MAIN, answer_system_prompt, user_prompt, temperature=0.5)
+        parsed = await chat_json(MODEL_MAIN, answer_system_prompt, user_prompt, temperature=TEMP_QNA_ANSWER)
 
         batch_results = {}
         for ans in parsed.get('answers', []):

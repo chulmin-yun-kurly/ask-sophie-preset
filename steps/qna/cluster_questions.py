@@ -12,7 +12,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import cosine_similarity
 from config import (
     MODEL_LIGHT, MODEL_EMBEDDING, EMBEDDING_BATCH_SIZE,
-    CLUSTER_MAX_QUESTIONS, CLUSTER_MAX_CONCURRENT, MIN_CONTENT_COUNT
+    CLUSTER_MAX_QUESTIONS, CLUSTER_MAX_CONCURRENT, MIN_CONTENT_COUNT, TEMP_CLUSTER_MERGE
 )
 from llm_client import client, load_prompt, build_system_prompt, chat_json, get_embeddings
 from sheet_reader import write_dataframe_to_sheet
@@ -40,7 +40,7 @@ async def merge_cluster_questions(category: str, cluster: dict) -> dict:
         qs_text=qs_text
     )
 
-    parsed = await chat_json(MODEL_LIGHT, merge_system, merge_user, temperature=0.1)
+    parsed = await chat_json(MODEL_LIGHT, merge_system, merge_user, temperature=TEMP_CLUSTER_MERGE)
 
     groups = parsed.get('groups', [])
     result_groups = []

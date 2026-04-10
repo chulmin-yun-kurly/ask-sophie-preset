@@ -7,7 +7,7 @@ import json
 import asyncio
 import sys
 import time
-from config import MODEL_MAIN, QNA_BATCH_SIZE, QNA_MAX_CONCURRENT, SKIP_EMPTY_DESC
+from config import MODEL_MAIN, QNA_BATCH_SIZE, QNA_MAX_CONCURRENT, SKIP_EMPTY_DESC, TEMP_QNA_GENERATE
 from llm_client import load_prompt, build_system_prompt, chat_json
 from sheet_reader import read_google_sheet, write_dataframe_to_sheet
 
@@ -35,7 +35,7 @@ async def generate_batch(items: list[dict]) -> list[dict]:
         products_text=products_text
     )
 
-    parsed = await chat_json(MODEL_MAIN, system_prompt, user_prompt, temperature=0.7)
+    parsed = await chat_json(MODEL_MAIN, system_prompt, user_prompt, temperature=TEMP_QNA_GENERATE)
     return parsed.get('results', [])
 
 

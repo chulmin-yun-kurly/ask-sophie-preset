@@ -7,7 +7,7 @@ import asyncio
 import json
 import sys
 import pandas as pd
-from config import MODEL_MAIN, PREPARE_BATCH_SIZE, PREPARE_MAX_CONCURRENT
+from config import MODEL_MAIN, PREPARE_BATCH_SIZE, PREPARE_MAX_CONCURRENT, TEMP_PRODUCT_ANSWER
 from llm_client import load_prompt, build_system_prompt, chat_json
 from sheet_reader import read_google_sheet, write_dataframe_to_sheet
 
@@ -31,7 +31,7 @@ async def generate_answers_batch(qa_items: list[dict], system_prompt: str, user_
 """
 
     user_prompt = user_template.format(items_text=items_text)
-    parsed = await chat_json(MODEL_MAIN, system_prompt, user_prompt, temperature=0.5)
+    parsed = await chat_json(MODEL_MAIN, system_prompt, user_prompt, temperature=TEMP_PRODUCT_ANSWER)
     return parsed.get('results', [])
 
 

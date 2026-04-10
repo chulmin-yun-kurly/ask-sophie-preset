@@ -14,7 +14,7 @@ OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
 
 # 모델
 MODEL_MAIN = 'gpt-5.4-mini'         # 데이터 준비, 질문 생성
-MODEL_LIGHT = 'gpt-4.1-mini'       # 클러스터 병합, 레이블, 답변
+MODEL_LIGHT = 'gpt-5.4-mini'       # 클러스터 병합, 레이블, 답변
 MODEL_EMBEDDING = 'text-embedding-3-small'
 
 # ── 배치 / 동시성 ────────────────────────────────
@@ -30,6 +30,16 @@ CLUSTER_ANSWER_BATCH_SIZE = 5
 
 EMBEDDING_BATCH_SIZE = 100
 
+# ── Temperature ─────────────────────────────────
+TEMP_PREPARE = 0.3              # 데이터 준비 (key_description, topic_keyword)
+TEMP_QNA_GENERATE = 1.2         # QnA 질문 생성
+TEMP_QNA_ANSWER = 0.5           # QnA 답변 생성
+TEMP_CLUSTER_MERGE = 0.1        # 클러스터 병합
+TEMP_SUGGEST = 0.3              # suggest 매핑
+TEMP_PRODUCT_GENERATE = 0.5     # 상품 소개 텍스트 생성
+TEMP_PRODUCT_QUESTION = 0.5     # 상품별 질문 생성
+TEMP_PRODUCT_ANSWER = 0.5       # 상품별 답변 생성
+
 # ── 기타 ──────────────────────────────────────────
 SKIP_EMPTY_DESC = True              # description 없는 상품 스킵
-MIN_CONTENT_COUNT = 3               # 최종 결과에서 content_count 최소값 (미만은 제외)
+MIN_CONTENT_COUNT = 1               # 최종 결과에서 content_count 최소값 (미만은 제외)
