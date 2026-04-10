@@ -11,6 +11,9 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 SHEET_ID = '19c8o63Lck04VWeOHyEXiEcYDBv92LcISR17xP7UZpfs'
 SHEET_URL = f'https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit'
 
+# 원본에서만 읽어야 하는 소스 시트 (테스트 모드에서도 원본 사용)
+SOURCE_SHEETS = {'merged_final'}
+
 # 시트 이름 -> gid 매핑
 SHEET_GIDS = {
     '상품_코어_테이블': 539029483,
@@ -85,9 +88,15 @@ def read_google_sheet(sheet_url: str = None, sheet_name: str = None, sheet_id: s
     else:
         # 기본 스프레드시트 사용
         if sheet_id is None:
-            from product_config import get_current_product
-            product = get_current_product()
-            sheet_id = product.sheet_id if product else SHEET_ID
+            # 테스트 모드: 소스 시트가 아니면 테스트 시트 사용
+            from test_config import get_test_config
+            test = get_test_config()
+            if test and test.enabled and test.sheet_id and sheet_name not in SOURCE_SHEETS:
+                sheet_id = test.sheet_id
+            else:
+                from product_config import get_current_product
+                product = get_current_product()
+                sheet_id = product.sheet_id if product else SHEET_ID
 
         # sheet_name이 주어진 경우 gid 찾기
         gid = None
@@ -166,9 +175,15 @@ def write_dataframe_to_sheet(
             raise ValueError("유효하지 않은 구글 스프레드시트 URL입니다.")
         sheet_id = match.group(1)
     elif sheet_id is None:
-        from product_config import get_current_product
-        product = get_current_product()
-        sheet_id = product.sheet_id if product else SHEET_ID
+        # 테스트 모드: 테스트 시트에 쓰기
+        from test_config import get_test_config
+        test = get_test_config()
+        if test and test.enabled and test.sheet_id and sheet_name not in SOURCE_SHEETS:
+            sheet_id = test.sheet_id
+        else:
+            from product_config import get_current_product
+            product = get_current_product()
+            sheet_id = product.sheet_id if product else SHEET_ID
 
     # Google Sheets API 사용
     creds = get_credentials(client_secret_path)

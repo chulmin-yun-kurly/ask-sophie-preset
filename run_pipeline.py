@@ -16,6 +16,8 @@ Phase 구조:
     python run_pipeline.py --product all qna compare            # qna + compare만 (product 제외)
     python run_pipeline.py merge                                # JSONL 통합만 (전 상품)
     python run_pipeline.py --product olive_oil,cheese merge     # JSONL 통합만 (지정 상품)
+    python run_pipeline.py --test 3                             # 테스트 모드 (3개 상품만 처리)
+    python run_pipeline.py --test 3 --test-random               # 테스트 모드 (랜덤 샘플링)
 
 개별 단계 실행은 각 파이프라인 실행기를 사용하세요:
     python run_qna_pipeline.py     [--product ID] [prepare|qna|invert|cluster|answer|suggest|export|qa]
@@ -42,7 +44,7 @@ PIPELINES = {
 PHASES = ['qa', 'suggest', 'export']
 
 
-def run_pipeline_phase(pipeline_key: str, product_id: str, phase: str) -> bool:
+def run_pipeline_phase(pipeline_key: str, product_id: str, phase: str, test_args: list = None) -> bool:
     """한 파이프라인에 대해 phase를 실행한다."""
     script, label = PIPELINES[pipeline_key]
     print(f"\n{'#'*60}")
@@ -53,8 +55,11 @@ def run_pipeline_phase(pipeline_key: str, product_id: str, phase: str) -> bool:
     env = os.environ.copy()
     env['PRODUCT_ID'] = product_id
     env['PYTHONPATH'] = ROOT_DIR + os.pathsep + env.get('PYTHONPATH', '')
+    cmd = [sys.executable, script, '--product', product_id, phase]
+    if test_args:
+        cmd.extend(test_args)
     result = subprocess.run(
-        [sys.executable, script, '--product', product_id, phase],
+        cmd,
         cwd=ROOT_DIR,
         env=env,
     )
@@ -92,15 +97,15 @@ def run_merge(product_ids: list | None = None) -> bool:
     return True
 
 
-def _run_product_phase(product_id: str, pipeline_keys: list, phase: str) -> bool:
+def _run_product_phase(product_id: str, pipeline_keys: list, phase: str, test_args: list = None) -> bool:
     """한 상품에 대해 phase를 모든 파이프라인 순서대로 실행한다."""
     for key in pipeline_keys:
-        if not run_pipeline_phase(key, product_id, phase):
+        if not run_pipeline_phase(key, product_id, phase, test_args):
             return False
     return True
 
 
-def run_phase(phase: str, pipeline_keys: list, product_ids: list, parallel: bool) -> bool:
+def run_phase(phase: str, pipeline_keys: list, product_ids: list, parallel: bool, test_args: list = None) -> bool:
     """한 Phase를 전 상품에 대해 실행한다.
 
     - 상품 내부에서는 pipeline_keys 순서대로 순차 실행
@@ -114,7 +119,7 @@ def run_phase(phase: str, pipeline_keys: list, product_ids: list, parallel: bool
     if parallel and len(product_ids) > 1:
         with ProcessPoolExecutor(max_workers=len(product_ids)) as executor:
             futures = {
-                executor.submit(_run_product_phase, pid, pipeline_keys, phase): pid
+                executor.submit(_run_product_phase, pid, pipeline_keys, phase, test_args): pid
                 for pid in product_ids
             }
             failed = []
@@ -133,7 +138,7 @@ def run_phase(phase: str, pipeline_keys: list, product_ids: list, parallel: bool
 
     # 순차
     for pid in product_ids:
-        if not _run_product_phase(pid, pipeline_keys, phase):
+        if not _run_product_phase(pid, pipeline_keys, phase, test_args):
             print(f"\n✗ [{phase}] {pid} 실패. 중단.")
             return False
     return True
@@ -149,6 +154,10 @@ def main():
                         help='상품 ID, 쉼표 목록("olive_oil,cheese"), 또는 "all" (기본: olive_oil)')
     parser.add_argument('--parallel', action='store_true',
                         help='전 상품 동시 실행 (Phase 내에서만 병렬, --product all 과 함께 사용)')
+    parser.add_argument('--test', type=int, default=None, help='테스트 모드 (N개 상품만 처리)')
+    parser.add_argument('--test-random', action='store_true', help='랜덤 샘플링 (기본: top N)')
+    parser.add_argument('--test-sheet-id', default=None, help='기존 테스트 시트 ID')
+    parser.add_argument('--test-comment', default=None, help='테스트 시트 제목 코멘트')
     parser.add_argument('targets', nargs='*',
                         help='실행할 파이프라인: qna, product, compare, merge (미지정 시 qna+product+compare+merge)')
     args = parser.parse_args()
@@ -173,6 +182,24 @@ def main():
                 print(f"사용 가능: {', '.join(sorted(valid_targets))}")
                 sys.exit(1)
 
+    # 테스트 모드 CLI 인자 구성
+    test_args = []
+    if args.test:
+        test_args.extend(['--test', str(args.test)])
+        if args.test_random:
+            test_args.append('--test-random')
+        if args.test_comment:
+            test_args.extend(['--test-comment', args.test_comment])
+
+        # 테스트 시트 생성 (한 번만)
+        if args.test_sheet_id:
+            test_args.extend(['--test-sheet-id', args.test_sheet_id])
+        else:
+            from test_config import create_test_spreadsheet
+            sheet_id = create_test_spreadsheet(args.test_comment or '')
+            test_args.extend(['--test-sheet-id', sheet_id])
+            print(f"\n[TEST] {args.test}개 상품, {'랜덤' if args.test_random else 'top N'}")
+
     total_start = time.time()
 
     # 상품 목록 결정 ('all' | 쉼표 목록 | 단일 ID)
@@ -189,7 +216,7 @@ def main():
 
         # Phase 순서대로 실행 (전 상품 단위로 묶음)
         for phase in PHASES:
-            if not run_phase(phase, pipeline_keys, product_ids, args.parallel):
+            if not run_phase(phase, pipeline_keys, product_ids, args.parallel, test_args or None):
                 print("\n파이프라인 중단.")
                 sys.exit(1)
 

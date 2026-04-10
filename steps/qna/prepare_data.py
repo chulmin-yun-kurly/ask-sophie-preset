@@ -106,6 +106,13 @@ def main():
     df = read_google_sheet(sheet_name='merged_final')
     print(f"Read Shape: {df.shape}")
 
+    # 테스트 모드: 샘플링
+    from test_config import get_test_config, sample_dataframe
+    test = get_test_config()
+    if test and test.enabled:
+        df = sample_dataframe(df, test.sample_size, test.random)
+        print(f"   [TEST] {len(df)}건 샘플링 ({'랜덤' if test.random else 'top N'})")
+
     # 2. 비동기 배치 처리 (재시도 포함)
     start_time = time.time()
 

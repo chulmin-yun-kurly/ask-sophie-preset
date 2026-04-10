@@ -43,7 +43,22 @@ GROUP_MAP = {
 }
 
 
-def run_step(script: str, description: str, product_id: str) -> bool:
+def _test_env_vars(args) -> dict:
+    """테스트 모드 환경변수를 구성합니다."""
+    env = {}
+    if getattr(args, 'test', None):
+        env['TEST_ENABLED'] = '1'
+        env['TEST_SAMPLE_SIZE'] = str(args.test)
+        if getattr(args, 'test_random', False):
+            env['TEST_RANDOM'] = '1'
+        if getattr(args, 'test_sheet_id', None):
+            env['TEST_SHEET_ID'] = args.test_sheet_id
+        if getattr(args, 'test_comment', None):
+            env['TEST_COMMENT'] = args.test_comment
+    return env
+
+
+def run_step(script: str, description: str, product_id: str, extra_env: dict = None) -> bool:
     print(f"\n{'='*60}")
     print(f"  {description}")
     print(f"  → {script}")
@@ -53,6 +68,8 @@ def run_step(script: str, description: str, product_id: str) -> bool:
     env = os.environ.copy()
     env['PYTHONPATH'] = ROOT_DIR + os.pathsep + env.get('PYTHONPATH', '')
     env['PRODUCT_ID'] = product_id
+    if extra_env:
+        env.update(extra_env)
     result = subprocess.run([sys.executable, script], env=env)
     elapsed = time.time() - start
 
@@ -67,6 +84,10 @@ def run_step(script: str, description: str, product_id: str) -> bool:
 def main():
     parser = argparse.ArgumentParser(description='상품 파이프라인 실행기')
     parser.add_argument('--product', default='olive_oil', help='상품 ID (기본: olive_oil)')
+    parser.add_argument('--test', type=int, default=None, help='테스트 모드 (N개 상품만 처리)')
+    parser.add_argument('--test-random', action='store_true', help='랜덤 샘플링 (기본: top N)')
+    parser.add_argument('--test-sheet-id', default=None, help='기존 테스트 시트 ID')
+    parser.add_argument('--test-comment', default=None, help='테스트 시트 제목 코멘트')
     parser.add_argument('targets', nargs='*', help='실행할 단계')
     args = parser.parse_args()
 
@@ -89,11 +110,20 @@ def main():
                 print(f"사용 가능 그룹: {', '.join(GROUP_MAP.keys())}")
                 sys.exit(1)
 
+    # 테스트 모드 설정
+    extra_env = _test_env_vars(args)
+    if args.test:
+        if not args.test_sheet_id:
+            from test_config import create_test_spreadsheet
+            sheet_id = create_test_spreadsheet(args.test_comment or '')
+            extra_env['TEST_SHEET_ID'] = sheet_id
+        print(f"\n[TEST] {args.test}개 상품, {'랜덤' if args.test_random else 'top N'}")
+
     total_start = time.time()
     print(f"상품 파이프라인 시작: {len(steps)}개 단계 (상품: {args.product})")
 
     for script, description in steps:
-        if not run_step(script, description, args.product):
+        if not run_step(script, description, args.product, extra_env):
             print("\n파이프라인 중단.")
             sys.exit(1)
 
