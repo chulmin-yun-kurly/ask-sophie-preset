@@ -3,12 +3,17 @@
 
 각 상품의 id_prefix를 사용하여 ID 충돌을 방지합니다.
 예: id_prefix="0" → c01_s000 → 0_c01_s000
+
+사용법:
+    python steps/merge_jsonl.py                                # 전 상품 통합
+    python steps/merge_jsonl.py --products olive_oil,cheese    # 지정 상품만 통합
 """
+import argparse
 import json
 import os
 import glob
 from datetime import datetime
-from product_config import load_all_product_configs, ProductConfig
+from product_config import load_all_product_configs, load_product_config, ProductConfig
 
 INTEGRATED_DIR = os.path.join('output', 'integrated')
 
@@ -64,7 +69,16 @@ def merge_product_files(config: ProductConfig, file_type: str, prefix_fn, out_fi
 
 
 def main():
-    configs = load_all_product_configs()
+    parser = argparse.ArgumentParser(description='상품별 JSONL 통합')
+    parser.add_argument('--products', default='',
+                        help='쉼표로 구분한 상품 ID 목록 (미지정 시 전체)')
+    args = parser.parse_args()
+
+    if args.products:
+        product_ids = [p.strip() for p in args.products.split(',') if p.strip()]
+        configs = [load_product_config(pid) for pid in product_ids]
+    else:
+        configs = load_all_product_configs()
     if not configs:
         print("상품 설정이 없습니다.")
         return
