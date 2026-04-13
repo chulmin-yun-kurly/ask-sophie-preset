@@ -55,6 +55,12 @@ def main():
             if not qid or not question_text:
                 continue
 
+            related_questions = _parse_json_list(row.get('related_questions', '[]'))
+            related_questions = [
+                str(r).strip() for r in related_questions
+                if isinstance(r, str) and str(r).strip() and str(r).strip() != question_text
+            ]
+
             # question JSONL
             q_line = {
                 'questionId': qid,
@@ -65,7 +71,7 @@ def main():
                     'answerType': 'COMPARE',
                     'category': '',
                     'representative': question_text,
-                    'relatedQuestions': [],
+                    'relatedQuestions': related_questions,
                 },
             }
             fq.write(json.dumps(q_line, ensure_ascii=False) + '\n')

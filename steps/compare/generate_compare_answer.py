@@ -239,9 +239,16 @@ async def main():
         except (json.JSONDecodeError, TypeError):
             content_nos = []
         content_nos = [int(x) for x in content_nos if isinstance(x, (int, str)) and str(x).strip().lstrip('-').isdigit()]
+        try:
+            related_questions = json.loads(row.get('related_questions', '[]') or '[]')
+            if not isinstance(related_questions, list):
+                related_questions = []
+        except (json.JSONDecodeError, TypeError):
+            related_questions = []
         items.append({
             'id': row['id'],
             'question': row['question'],
+            'related_questions': related_questions,
             'content_nos': content_nos,
         })
 
@@ -281,12 +288,13 @@ async def main():
         out_rows.append({
             'id': item['id'],
             'question': item['question'],
+            'related_questions': json.dumps(item.get('related_questions', []), ensure_ascii=False),
             'content_list': json.dumps(item['content_nos'], ensure_ascii=False),
             'productNos': json.dumps(res['productNos'], ensure_ascii=False),
             'content': json.dumps(res['content'], ensure_ascii=False),
         })
     df_out = pd.DataFrame(out_rows, columns=[
-        'id', 'question', 'content_list', 'productNos', 'content',
+        'id', 'question', 'related_questions', 'content_list', 'productNos', 'content',
     ])
 
     write_dataframe_to_sheet(df_out, sheet_name='compare_qna')
