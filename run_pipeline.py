@@ -128,6 +128,7 @@ def main():
     pipelines = {
         'qna': ('run_qna_pipeline.py', 'QnA 파이프라인'),
         'product': ('run_product_pipeline.py', '상품 파이프라인'),
+        'compare': ('run_compare_pipeline.py', '비교 파이프라인'),
     }
 
     valid_targets = set(pipelines.keys()) | {'merge'}
