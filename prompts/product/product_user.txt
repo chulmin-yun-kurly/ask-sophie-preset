@@ -3,8 +3,9 @@
 {products_text}
 
 JSON 형식으로 응답 (모든 값은 문자열, 배열 사용 금지):
+- story / features / recommendation 안에서만 핵심 키워드를 `<h>...</h>`로 감쌉니다 (각 bullet 최대 1회, story는 1~2회). intro/headline/outro에는 사용하지 않습니다.
 {{"results": [
-  {{"index": 0, "intro": "intro", "headline": "핵심 헤드라인", "features": "- 특장점1\n- 특장점2\n- 특장점3", "story": "스토리 텍스트", "recommendation": "- 추천 대상1\n- 추천 대상2", "outro":"outro"}},
-  {{"index": 1, "intro": "intro", "headline": "핵심 헤드라인", "features": "- 특장점1\n- 특장점2", "story": "스토리 텍스트", "recommendation": "- 추천 대상1\n- 추천 대상2", "outro":"outro"}},
+  {{"index": 0, "intro": "intro", "headline": "핵심 헤드라인", "features": "- <h>특장점1</h> 관련 짧은 설명\n- <h>특장점2</h> 관련 짧은 설명\n- <h>특장점3</h> 관련 짧은 설명", "story": "...<h>강조 키워드</h>...", "recommendation": "- <h>대상1</h>인 분\n- <h>대상2</h>일 때", "outro":"outro"}},
+  {{"index": 1, "intro": "intro", "headline": "핵심 헤드라인", "features": "- <h>특장점1</h> 관련 짧은 설명\n- <h>특장점2</h> 관련 짧은 설명", "story": "...<h>강조 키워드</h>...", "recommendation": "- <h>대상1</h>인 분\n- <h>대상2</h>일 때", "outro":"outro"}},
   ...
 ]}}
