@@ -122,6 +122,9 @@ def main():
             sheet_id = create_test_spreadsheet(args.test_comment or '')
             extra_env['TEST_SHEET_ID'] = sheet_id
         print(f"\n[TEST] {args.test}개 상품, {'랜덤' if args.test_random else 'top N'}")
+        # 테스트 모드: export 단계 제외 (시트 출력까지만)
+        export_scripts = {s for s, _ in STEP_MAP.get('export', [])}
+        steps = [(s, d) for s, d in steps if s not in export_scripts]
 
     total_start = time.time()
     print(f"QnA 파이프라인 시작: {len(steps)}개 단계 (상품: {args.product})")
