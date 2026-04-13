@@ -10,9 +10,9 @@
 {questions_text}
 
 JSON 형식으로 응답:
-- description 값 안에서 핵심 키워드/문구를 `<h>...</h>`로 감쌉니다. intro/outro/subtitle에는 사용하지 않습니다.
+- description 값 안에서 핵심 키워드/문구를 `<strong>...</strong>`로 감쌉니다. intro/outro/subtitle에는 사용하지 않습니다.
 {{"answers": [
-  {{"index": 0, "question_echo": "해당 질문 원문의 첫 15자", "answer_intro": "...", "subtopics": [{{"subtitle": "# ...", "description": "...<h>강조 키워드</h>..."}}], "answer_outro": "...", "search_keywords": ["키워드1", "키워드2"]}},
-  {{"index": 1, "question_echo": "해당 질문 원문의 첫 15자", "answer_intro": "...", "subtopics": [{{"subtitle": "# ...", "description": "...<h>강조 키워드</h>..."}}], "answer_outro": "...", "search_keywords": ["키워드1", "키워드2", "키워드3"]}},
+  {{"index": 0, "question_echo": "해당 질문 원문의 첫 15자", "answer_intro": "...", "subtopics": [{{"subtitle": "# ...", "description": "...<strong>강조 키워드</strong>..."}}], "answer_outro": "...", "search_keywords": ["키워드1", "키워드2"]}},
+  {{"index": 1, "question_echo": "해당 질문 원문의 첫 15자", "answer_intro": "...", "subtopics": [{{"subtitle": "# ...", "description": "...<strong>강조 키워드</strong>..."}}], "answer_outro": "...", "search_keywords": ["키워드1", "키워드2", "키워드3"]}},
   ...
 ]}}

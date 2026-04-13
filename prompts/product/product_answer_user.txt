@@ -3,9 +3,9 @@
 {items_text}
 
 JSON 형식으로 응답:
-- description 값 안에서 핵심 키워드/문구를 `<h>...</h>`로 감쌉니다. intro/outro/subtitle에는 사용하지 않습니다.
+- description 값 안에서 핵심 키워드/문구를 `<strong>...</strong>`로 감쌉니다. intro/outro/subtitle에는 사용하지 않습니다.
 {{"results": [
-  {{"index": 0, "answer_intro": "intro", "subtopics": [{{"subtitle": "subtitle_1", "description": "...<h>강조 키워드</h>..."}},{{"subtitle": "subtitle_2", "description": "...<h>강조 키워드</h>..."}}], "answer_outro": "outro"}},
-  {{"index": 1, "answer_intro": "intro", "subtopics": [{{"subtitle": "subtitle_1", "description": "...<h>강조 키워드</h>..."}},{{"subtitle": "subtitle_2", "description": "...<h>강조 키워드</h>..."}}], "answer_outro": "outro"}},
+  {{"index": 0, "answer_intro": "intro", "subtopics": [{{"subtitle": "subtitle_1", "description": "...<strong>강조 키워드</strong>..."}},{{"subtitle": "subtitle_2", "description": "...<strong>강조 키워드</strong>..."}}], "answer_outro": "outro"}},
+  {{"index": 1, "answer_intro": "intro", "subtopics": [{{"subtitle": "subtitle_1", "description": "...<strong>강조 키워드</strong>..."}},{{"subtitle": "subtitle_2", "description": "...<strong>강조 키워드</strong>..."}}], "answer_outro": "outro"}},
   ...
 ]}}
