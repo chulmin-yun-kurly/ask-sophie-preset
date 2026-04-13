@@ -72,7 +72,7 @@ def to_suggestions_data(suggest_ids: list) -> dict:
 
     - `pq_*`, `pqq_*` 접두사는 product 분류
     - 그 외 (qna_group, compare_qna 등)는 keyword 분류
-    - product 분류가 비어 있으면 None (키워드성 질문에서는 nullable)
+    - 분류된 항목이 없으면 빈 리스트
     """
     keyword: list = []
     product: list = []
@@ -81,7 +81,7 @@ def to_suggestions_data(suggest_ids: list) -> dict:
             product.append(sid)
         else:
             keyword.append(sid)
-    return {'keyword': keyword, 'product': product if product else None}
+    return {'keyword': keyword, 'product': product}
 
 
 def _sanitize(text: str) -> str:

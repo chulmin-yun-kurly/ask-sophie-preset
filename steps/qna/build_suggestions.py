@@ -1,6 +1,8 @@
 """
 qna_group의 각 그룹에 대해 연관 추천(suggest)을 생성합니다.
-임베딩으로 후보를 축소한 뒤, LLM으로 최종 5개를 선정합니다.
+
+후보 풀: qna_group 대표 질문 + compare_qna 비교 질문.
+임베딩으로 후보를 축소한 뒤, LLM으로 최종 SUGGEST_COUNT 개를 선정합니다.
 """
 import json
 import asyncio
@@ -49,10 +51,18 @@ async def main():
     content_map = build_content_map(df_prepared)
     print(f"   상품 매핑: {len(content_map)}개")
 
-    # 그룹 정보 준비
-    groups = []
+    # compare_qna는 후보 풀에만 추가 (없거나 비어 있으면 스킵)
+    try:
+        df_compare = read_google_sheet(sheet_name='compare_qna')
+        print(f"   compare_qna: {df_compare.shape}")
+    except Exception:
+        df_compare = None
+        print("   compare_qna: 없음 (스킵)")
+
+    # 타깃: qna_group 각 그룹 (suggest를 채울 대상)
+    targets = []
     for idx, row in df.iterrows():
-        groups.append({
+        targets.append({
             'df_idx': idx,
             'id': row.get('id', ''),
             'representative': row['representative'],
@@ -64,23 +74,35 @@ async def main():
             ),
         })
 
-    print(f"   총 {len(groups)}개 그룹")
+    # 후보 풀: qna_group 항목 + compare_qna 항목 (앞부분 = qna_group)
+    pool = [{'id': t['id'], 'text': t['representative']} for t in targets]
+    if df_compare is not None:
+        for _, row in df_compare.iterrows():
+            cid = str(row.get('id', '')).strip()
+            text = str(row.get('question', '')).strip()
+            if cid and text:
+                pool.append({'id': cid, 'text': text})
 
-    # 2. 임베딩 생성
+    print(f"   타깃 {len(targets)}개, 후보 풀 {len(pool)}개")
+
+    # 2. 임베딩 생성 (풀 전체)
     print("\n2. 임베딩 생성 중...")
-    texts = [g['representative'] for g in groups]
-    embeddings = await get_embeddings(texts, MODEL_EMBEDDING, EMBEDDING_BATCH_SIZE)
-    emb_matrix = np.array(embeddings)
-    print(f"   임베딩 Shape: {emb_matrix.shape}")
+    pool_texts = [p['text'] for p in pool]
+    pool_embeddings = await get_embeddings(pool_texts, MODEL_EMBEDDING, EMBEDDING_BATCH_SIZE)
+    pool_emb = np.array(pool_embeddings)
+    print(f"   풀 임베딩 Shape: {pool_emb.shape}")
 
-    # 3. 후보 선정 (cosine similarity top-K)
+    # 타깃 임베딩 = 풀의 앞부분(qna_group 구간)
+    target_emb = pool_emb[:len(targets)]
+
+    # 3. 후보 선정 (cosine similarity top-K, 자기 자신 제외)
     print(f"\n3. 그룹별 후보 {CANDIDATE_COUNT}개 선정 중...")
-    sim_matrix = cosine_similarity(emb_matrix)
+    sim_matrix = cosine_similarity(target_emb, pool_emb)
 
     candidates = {}
-    for i in range(len(groups)):
+    for i in range(len(targets)):
         sims = sim_matrix[i].copy()
-        sims[i] = -1  # 자기 자신 제외
+        sims[i] = -1  # 자기 자신(qna_group은 풀의 앞부분이라 인덱스 동일)
         top_indices = np.argsort(sims)[::-1][:CANDIDATE_COUNT]
         candidates[i] = top_indices.tolist()
 
@@ -95,24 +117,24 @@ async def main():
 
     async def process_group(group_idx):
         async with semaphore:
-            g = groups[group_idx]
+            t = targets[group_idx]
             cand_indices = candidates[group_idx]
 
             cand_text = "\n".join(
-                f"  {j}. [{groups[ci]['id']}] {groups[ci]['representative']}"
+                f"  {j}. [{pool[ci]['id']}] {pool[ci]['text']}"
                 for j, ci in enumerate(cand_indices)
             )
 
             content_desc_section = ""
-            if g['content_desc']:
-                content_desc_section = f"\n상품 특성: {g['content_desc']}"
+            if t['content_desc']:
+                content_desc_section = f"\n상품 특성: {t['content_desc']}"
 
             # answer_intro + subtopics + answer_outro를 합쳐서 answer 텍스트 구성
             answer_parts = []
-            if g['answer_intro']:
-                answer_parts.append(g['answer_intro'])
+            if t['answer_intro']:
+                answer_parts.append(t['answer_intro'])
             try:
-                subtopics = json.loads(g['subtopics']) if isinstance(g['subtopics'], str) else g['subtopics']
+                subtopics = json.loads(t['subtopics']) if isinstance(t['subtopics'], str) else t['subtopics']
             except (json.JSONDecodeError, TypeError):
                 subtopics = []
             for st_item in subtopics:
@@ -120,13 +142,13 @@ async def main():
                     answer_parts.append(st_item['subtitle'])
                 if st_item.get('description'):
                     answer_parts.append(st_item['description'])
-            if g['answer_outro']:
-                answer_parts.append(g['answer_outro'])
+            if t['answer_outro']:
+                answer_parts.append(t['answer_outro'])
             answer_text = ' '.join(answer_parts)
 
             user_prompt = user_template.format(
                 suggest_count=SUGGEST_COUNT,
-                representative=g['representative'],
+                representative=t['representative'],
                 answer=answer_text,
                 content_desc_section=content_desc_section,
                 cand_text=cand_text,
@@ -138,11 +160,11 @@ async def main():
             suggest_ids = []
             for pi in picked_indices:
                 if isinstance(pi, int) and 0 <= pi < len(cand_indices):
-                    suggest_ids.append(groups[cand_indices[pi]]['id'])
+                    suggest_ids.append(pool[cand_indices[pi]]['id'])
 
             suggest_map[group_idx] = suggest_ids[:SUGGEST_COUNT]
 
-    tasks = [process_group(i) for i in range(len(groups))]
+    tasks = [process_group(i) for i in range(len(targets))]
     await asyncio.gather(*tasks)
 
     print(f"   완료 ({len(suggest_map)}개 그룹)")
