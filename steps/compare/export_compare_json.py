@@ -10,6 +10,7 @@ content 배열 끝에 suggestions 블록을 덧붙입니다.
 """
 import json
 import os
+from llm_client import to_suggestions_data
 from sheet_reader import read_google_sheet
 from product_config import get_current_product, get_output_dir
 
@@ -76,7 +77,7 @@ def main():
 
             # 기존 content 내에 suggestions가 있다면 제거 후 마지막에 재부착
             content = [c for c in content if isinstance(c, dict) and c.get('type') != 'suggestions']
-            content.append({'type': 'suggestions', 'data': suggests})
+            content.append({'type': 'suggestions', 'data': to_suggestions_data(suggests)})
 
             a_line = {
                 'answerId': f'a_{qid}',

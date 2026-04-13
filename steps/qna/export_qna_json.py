@@ -4,7 +4,7 @@ prepared_data에서 content_no → content_nm 매핑도 함께 저장합니다.
 """
 import json
 import os
-from llm_client import strip_html
+from llm_client import strip_html, to_suggestions_data
 from sheet_reader import read_google_sheet
 from product_config import get_current_product, get_output_dir
 
@@ -156,7 +156,7 @@ def main():
                 # suggestions
                 content.append({
                     'type': 'suggestions',
-                    'data': group.get('suggest', []),
+                    'data': to_suggestions_data(group.get('suggest', [])),
                 })
 
                 content = [c for c in content if c.get('data') is not None]

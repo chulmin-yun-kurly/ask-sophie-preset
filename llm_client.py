@@ -67,6 +67,23 @@ def strip_html(text):
     return _HTML_TAG_RE.sub('', text)
 
 
+def to_suggestions_data(suggest_ids: list) -> dict:
+    """suggest ID 목록을 {keyword, product} 구조로 분류합니다.
+
+    - `pq_*`, `pqq_*` 접두사는 product 분류
+    - 그 외 (qna_group, compare_qna 등)는 keyword 분류
+    - product 분류가 비어 있으면 None (키워드성 질문에서는 nullable)
+    """
+    keyword: list = []
+    product: list = []
+    for sid in suggest_ids or []:
+        if isinstance(sid, str) and (sid.startswith('pq_') or sid.startswith('pqq_')):
+            product.append(sid)
+        else:
+            keyword.append(sid)
+    return {'keyword': keyword, 'product': product if product else None}
+
+
 def _sanitize(text: str) -> str:
     """JSON 직렬화를 깨는 제어 문자 및 서로게이트 문자를 제거합니다."""
     # 서로게이트 문자 제거 후 제어 문자 제거

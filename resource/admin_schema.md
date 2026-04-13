@@ -126,7 +126,7 @@
 | `productNos` | Long[] | 상품번호 목록 |
 | `comparison` | Object | 비교 테이블 (`headers`, `rows`) |
 | `bulletList` | String[] | 불릿 리스트 |
-| `suggestions` | String[] | 후속 질문 ID 목록 |
+| `suggestions` | Object | 후속 질문 ID 목록 (`{keyword: String[], product: String[] \| null}`) |
 
 ### 2.3 컴포넌트별 상세 및 예시
 
@@ -198,8 +198,17 @@
 #### suggestions
 
 ```json
-{"type": "suggestions", "data": ["q2", "q3"]}
+{
+  "type": "suggestions",
+  "data": {
+    "keyword": ["q2", "q3"],
+    "product": ["pq_5049153", "pqq_5049153_1"]
+  }
+}
 ```
+
+- `keyword`: 키워드(qna_group, compare 등) 후속 질문 ID 목록.
+- `product`: 상품 관련 후속 질문 ID 목록 (`pq_*`, `pqq_*`). 키워드성 질문(qna/compare 답변)에서는 `null`.
 
 ---
 
@@ -223,7 +232,7 @@
         {"type": "description", "data": "수확 직후 빠르게 착유해서 신선한 아로마가 살아있어요. 샐러드, 파스타 피니싱에 뿌리면 요리가 달라집니다."},
         {"type": "productNos", "data": [5049154]},
         {"type": "outro", "data": "처음이라면 파미고로 시작해보시고, 올리브오일 맛에 눈을 뜨셨다면 핀카듀에르나스를 경험해보세요."},
-        {"type": "suggestions", "data": ["q2", "q3"]}
+        {"type": "suggestions", "data": {"keyword": ["q2", "q3"], "product": null}}
       ]
     }
   ]
@@ -257,7 +266,7 @@
         {"type": "description", "data": "가열 요리가 목적이라면 퓨어, 샐러드나 빵에 찍어 먹는다면 엑스트라버진을 선택하세요."},
         {"type": "productNos", "data": [5049153, 5045209]},
         {"type": "outro", "data": "용도에 맞는 올리브오일을 고르면 요리의 완성도가 달라져요."},
-        {"type": "suggestions", "data": ["q1", "q3"]}
+        {"type": "suggestions", "data": {"keyword": ["q1", "q3"], "product": null}}
       ]
     }
   ]
@@ -278,7 +287,7 @@
         {"type": "title", "data": "# 산도란?"},
         {"type": "description", "data": "산도는 올리브오일 속 유리지방산 함량을 나타내요. 낮을수록 신선하고 품질이 높아요.\n* 엑스트라버진: 0.8% 이하\n* 버진: 2.0% 이하\n* 퓨어: 정제유 혼합으로 기준 상이"},
         {"type": "outro", "data": "산도와 수확 연도, 두 가지만 확인해도 좋은 올리브오일을 고를 수 있어요."},
-        {"type": "suggestions", "data": ["q1", "q2"]}
+        {"type": "suggestions", "data": {"keyword": ["q1", "q2"], "product": null}}
       ]
     }
   ]
@@ -317,7 +326,7 @@
             "샐러드·요거트에 뿌려 먹는 피니시 오일을 찾는 분"
           ]
         },
-        {"type": "suggestions", "data": ["q1", "q3"]}
+        {"type": "suggestions", "data": {"keyword": ["q2"], "product": ["pqq_5049153_1", "pqq_5049153_2"]}}
       ]
     }
   ]

@@ -3,7 +3,7 @@ product_data 및 product_qna 시트를 JSON 파일 및 BE 스키마 JSONL로 저
 """
 import json
 import os
-from llm_client import strip_html
+from llm_client import strip_html, to_suggestions_data
 from sheet_reader import read_google_sheet
 from product_config import get_output_dir
 
@@ -74,7 +74,7 @@ def export_product(product_map: dict):
                 content.append(_to_bullet_or_desc(strip_html(product['recommendation'])))
 
             content.append({'type': 'outro', 'data': strip_html(product.get('outro', '')) or None})
-            content.append({'type': 'suggestions', 'data': product.get('suggest', [])})
+            content.append({'type': 'suggestions', 'data': to_suggestions_data(product.get('suggest', []))})
 
             content = [c for c in content if c.get('data') is not None]
 
@@ -152,7 +152,7 @@ def export_product_qna(df_qna, product_map: dict):
                 content.append({'type': 'title', 'data': f"# {strip_html(st.get('subtitle', ''))}"})
                 content.append({'type': 'description', 'data': strip_html(st.get('description', ''))})
             content.append({'type': 'outro', 'data': strip_html(row.get('answer_outro', ''))})
-            content.append({'type': 'suggestions', 'data': suggests})
+            content.append({'type': 'suggestions', 'data': to_suggestions_data(suggests)})
 
             content = [c for c in content if c.get('data') is not None]
 
