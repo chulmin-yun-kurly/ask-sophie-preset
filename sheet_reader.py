@@ -12,7 +12,7 @@ SHEET_ID = '19c8o63Lck04VWeOHyEXiEcYDBv92LcISR17xP7UZpfs'
 SHEET_URL = f'https://docs.google.com/spreadsheets/d/{SHEET_ID}/edit'
 
 # 원본에서만 읽어야 하는 소스 시트 (테스트 모드에서도 원본 사용)
-SOURCE_SHEETS = {'merged_final'}
+SOURCE_SHEETS = {'merged_final', 'compare_question'}
 
 # 시트 이름 -> gid 매핑
 SHEET_GIDS = {

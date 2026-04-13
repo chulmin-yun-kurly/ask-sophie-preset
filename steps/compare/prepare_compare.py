@@ -17,6 +17,7 @@ from config import (
 )
 from llm_client import load_prompt, build_system_prompt, chat_json
 from sheet_reader import read_google_sheet, write_dataframe_to_sheet
+from test_config import get_test_config, sample_dataframe
 
 
 async def generate_related_questions(questions: list[str], count: int) -> list[list[str]]:
@@ -85,6 +86,13 @@ async def main():
     if df.empty:
         print("✗ 비교 질문이 하나도 없습니다.")
         sys.exit(1)
+
+    # 2-1. 테스트 모드 샘플링
+    test = get_test_config()
+    if test and test.enabled and test.sample_size > 0:
+        before = len(df)
+        df = sample_dataframe(df, test.sample_size, test.random)
+        print(f"[TEST] 비교 질문 {before} → {len(df)}건 샘플링")
 
     questions = df['question'].astype(str).str.strip().tolist()
 
