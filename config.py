@@ -30,6 +30,15 @@ CLUSTER_ANSWER_BATCH_SIZE = 5
 
 EMBEDDING_BATCH_SIZE = 100
 
+# 비교 파이프라인
+COMPARE_CANDIDATE_COUNT = 30        # 임베딩 top-K 후보 수
+COMPARE_FINAL_MIN = 5               # LLM 최종 선택 하한
+COMPARE_FINAL_MAX = 10              # LLM 최종 선택 상한
+COMPARE_BATCH_SIZE = 5              # 질문 배치 크기
+COMPARE_MAX_CONCURRENT = 5          # 동시 요청 수
+COMPARE_SUGGEST_COUNT = 10          # 비교 질문 suggest 개수
+COMPARE_SUGGEST_CANDIDATE_COUNT = 50  # suggest 후보 수 (임베딩 top-K)
+
 # ── Temperature ─────────────────────────────────
 TEMP_PREPARE = 0.3              # 데이터 준비 (key_description, topic_keyword)
 TEMP_QNA_GENERATE = 1.2         # QnA 질문 생성
@@ -39,6 +48,8 @@ TEMP_SUGGEST = 0.3              # suggest 매핑
 TEMP_PRODUCT_GENERATE = 0.5     # 상품 소개 텍스트 생성
 TEMP_PRODUCT_QUESTION = 0.5     # 상품별 질문 생성
 TEMP_PRODUCT_ANSWER = 0.5       # 상품별 답변 생성
+TEMP_COMPARE_MATCH = 0.2        # 비교 파이프라인: 상품 필터링
+TEMP_COMPARE_ANSWER = 0.5       # 비교 파이프라인: 답변 생성
 
 # ── 기타 ──────────────────────────────────────────
 SKIP_EMPTY_DESC = True              # description 없는 상품 스킵
