@@ -6,6 +6,10 @@ QnA 파이프라인 실행기
     python run_qna_pipeline.py --product olive_oil      # 상품 지정
     python run_qna_pipeline.py prepare                  # 데이터 준비만
     python run_qna_pipeline.py --product honey prepare  # 상품 지정 + 단계 선택
+    python run_qna_pipeline.py --product olive_oil qa   # 그룹 지정 (qa: prepare ~ answer)
+
+단일 단계: prepare, qna, invert, cluster, answer, suggest, export
+그룹    : qa (prepare → qna → invert → cluster → answer), suggest, export
 """
 import argparse
 import subprocess
@@ -33,6 +37,13 @@ STEP_MAP = {
     'answer': [STEPS[4]],
     'suggest': [STEPS[5]],
     'export': [STEPS[6]],
+}
+
+# Phase 그룹: run_pipeline.py의 Phase 오케스트레이션에서 사용
+GROUP_MAP = {
+    'qa': ['prepare', 'qna', 'invert', 'cluster', 'answer'],
+    'suggest': ['suggest'],
+    'export': ['export'],
 }
 
 
@@ -71,11 +82,15 @@ def main():
     else:
         steps = []
         for t in args.targets:
-            if t in STEP_MAP:
+            if t in GROUP_MAP:
+                for step_name in GROUP_MAP[t]:
+                    steps.extend(STEP_MAP[step_name])
+            elif t in STEP_MAP:
                 steps.extend(STEP_MAP[t])
             else:
-                print(f"알 수 없는 단계: {t}")
-                print(f"사용 가능: {', '.join(STEP_MAP.keys())}")
+                print(f"알 수 없는 단계/그룹: {t}")
+                print(f"사용 가능 단계: {', '.join(STEP_MAP.keys())}")
+                print(f"사용 가능 그룹: {', '.join(GROUP_MAP.keys())}")
                 sys.exit(1)
 
     total_start = time.time()
