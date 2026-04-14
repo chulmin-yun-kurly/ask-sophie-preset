@@ -65,8 +65,7 @@ def main():
             q_line = {
                 'questionId': qid,
                 'keyword': keyword,
-                'isEntry': False,
-                'isActive': False,
+                'isActive': True,
                 'content': {
                     'answerType': 'COMPARE',
                     'category': '',
@@ -88,7 +87,7 @@ def main():
             a_line = {
                 'answerId': f'a_{qid}',
                 'questionId': qid,
-                'isActive': False,
+                'isActive': True,
                 'answers': [{'content': content}],
             }
             fa.write(json.dumps(a_line, ensure_ascii=False) + '\n')

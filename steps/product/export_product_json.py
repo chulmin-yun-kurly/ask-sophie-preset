@@ -5,7 +5,7 @@ import json
 import os
 from llm_client import strip_html, to_suggestions_data
 from sheet_reader import read_google_sheet
-from product_config import get_output_dir
+from product_config import get_current_product, get_output_dir
 
 RESOURCE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'resource')
 
@@ -24,6 +24,7 @@ def _to_bullet_or_desc(text: str) -> dict:
 def export_product(product_map: dict):
     """product_data를 JSON + JSONL로 저장합니다."""
     output_dir = get_output_dir()
+    keyword = get_current_product().product_name if get_current_product() else ''
     # product_data.json
     product_map_file = os.path.join(output_dir, 'product_data.json')
     with open(product_map_file, 'w', encoding='utf-8') as f:
@@ -36,9 +37,9 @@ def export_product(product_map: dict):
         for cno, product in product_map.items():
             line = {
                 'questionId': f'pq_{cno}',
+                'keyword': keyword,
                 'productNo': cno,
-                'isEntry': False,
-                'isActive': False,
+                'isActive': True,
                 'content': {
                     'answerType': 'SUMMARY',
                     'category': '',
@@ -81,7 +82,7 @@ def export_product(product_map: dict):
             line = {
                 'answerId': f'pa_{cno}',
                 'questionId': f'pq_{cno}',
-                'isActive': False,
+                'isActive': True,
                 'answers': [{'content': content}],
             }
             f.write(json.dumps(line, ensure_ascii=False) + '\n')
@@ -95,6 +96,7 @@ def export_product(product_map: dict):
 def export_product_qna(df_qna, product_map: dict):
     """product_qna 시트를 INFO 타입 JSONL로 저장합니다."""
     output_dir = get_output_dir()
+    keyword = get_current_product().product_name if get_current_product() else ''
     pqq_file = os.path.join(output_dir, 'questions', 'question_product_qna.jsonl')
     pqa_file = os.path.join(output_dir, 'answers', 'answer_product_qna.jsonl')
     q_count = 0
@@ -121,9 +123,9 @@ def export_product_qna(df_qna, product_map: dict):
             # question JSONL
             q_line = {
                 'questionId': q_id,
+                'keyword': keyword,
                 'productNo': cno,
-                'isEntry': False,
-                'isActive': False,
+                'isActive': True,
                 'content': {
                     'answerType': 'INFO',
                     'category': row.get('category', ''),
@@ -159,7 +161,7 @@ def export_product_qna(df_qna, product_map: dict):
             a_line = {
                 'answerId': a_id,
                 'questionId': q_id,
-                'isActive': False,
+                'isActive': True,
                 'answers': [{'content': content}],
             }
             fa.write(json.dumps(a_line, ensure_ascii=False) + '\n')
