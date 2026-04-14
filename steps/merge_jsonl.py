@@ -39,8 +39,16 @@ def prefix_answer(line: str, prefix: str) -> str:
     # answers[].content[] 내의 suggestions data도 prefix
     for answer in obj.get('answers', []):
         for item in answer.get('content', []):
-            if item.get('type') == 'suggestions' and isinstance(item.get('data'), list):
-                item['data'] = [prefix_id(s, prefix) for s in item['data']]
+            if item.get('type') == 'suggestions':
+                data = item.get('data')
+                if isinstance(data, dict):
+                    # {keyword: [...], product: [...]} 형식
+                    for key in data:
+                        if isinstance(data[key], list):
+                            data[key] = [prefix_id(s, prefix) for s in data[key]]
+                elif isinstance(data, list):
+                    # 하위 호환: flat list 형식
+                    item['data'] = [prefix_id(s, prefix) for s in data]
 
     return json.dumps(obj, ensure_ascii=False)
 
