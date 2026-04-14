@@ -99,7 +99,6 @@ def main():
                 line = {
                     'questionId': group['id'],
                     'keyword': DEFAULT_KEYWORD,
-                    'isActive': True,
                     'content': {
                         'answerType': 'RECOMMEND',
                         'category': mapped_category,
@@ -163,7 +162,6 @@ def main():
                 line = {
                     'answerId': f"a_{group['id']}",
                     'questionId': group['id'],
-                    'isActive': True,
                     'answers': [{'content': content}],
                 }
                 f.write(json.dumps(line, ensure_ascii=False) + '\n')

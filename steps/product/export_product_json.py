@@ -39,7 +39,6 @@ def export_product(product_map: dict):
                 'questionId': f'pq_{cno}',
                 'keyword': keyword,
                 'productNo': cno,
-                'isActive': True,
                 'content': {
                     'answerType': 'SUMMARY',
                     'category': '',
@@ -82,7 +81,6 @@ def export_product(product_map: dict):
             line = {
                 'answerId': f'pa_{cno}',
                 'questionId': f'pq_{cno}',
-                'isActive': True,
                 'answers': [{'content': content}],
             }
             f.write(json.dumps(line, ensure_ascii=False) + '\n')
@@ -125,7 +123,6 @@ def export_product_qna(df_qna, product_map: dict):
                 'questionId': q_id,
                 'keyword': keyword,
                 'productNo': cno,
-                'isActive': True,
                 'content': {
                     'answerType': 'INFO',
                     'category': row.get('category', ''),
@@ -161,7 +158,6 @@ def export_product_qna(df_qna, product_map: dict):
             a_line = {
                 'answerId': a_id,
                 'questionId': q_id,
-                'isActive': True,
                 'answers': [{'content': content}],
             }
             fa.write(json.dumps(a_line, ensure_ascii=False) + '\n')
