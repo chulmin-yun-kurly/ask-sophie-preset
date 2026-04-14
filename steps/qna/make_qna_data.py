@@ -24,9 +24,7 @@ async def generate_batch(items: list[dict]) -> list[dict]:
 상품명: {item['content_nm']}
 핵심 설명: {item['key_description']}
 특성 키워드: {item['topic_keyword']}
-상품 상세 설명 (JSON):
 
-{item['description']}
 """
 
     system_prompt = build_system_prompt(load_prompt('qna/qna_system.txt'))
@@ -61,7 +59,7 @@ async def process_all(df, only_indices: set = None):
             'content_nm': row['content_nm'],
             'key_description': row.get('key_description', ''),
             'topic_keyword': row.get('topic_keyword', ''),
-            'description': desc
+            #'description': desc
         })
         if len(current_batch) >= QNA_BATCH_SIZE:
             batches.append(current_batch)

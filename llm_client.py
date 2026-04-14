@@ -57,11 +57,12 @@ def build_system_prompt(base_prompt: str) -> str:
     return base_prompt
 
 
-_HTML_TAG_RE = re.compile(r'<[^>]+>')
+# 하이라이팅용 <strong>, </strong> 는 보존하고 그 외 태그는 제거합니다.
+_HTML_TAG_RE = re.compile(r'<(?!/?strong>)[^>]+>')
 
 
 def strip_html(text):
-    """문자열에서 HTML 태그를 제거합니다. 문자열이 아니면 그대로 반환."""
+    """문자열에서 <strong>/</strong> 외의 HTML 태그를 제거합니다. 문자열이 아니면 그대로 반환."""
     if not isinstance(text, str):
         return text
     return _HTML_TAG_RE.sub('', text)
