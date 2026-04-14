@@ -1,0 +1,17 @@
+아래 질문 그룹의 내부 일관성을 검증해주세요.
+
+대표 질문: {representative}
+카테고리: {category}
+
+질문 목록:
+{qs_text}
+
+각 질문이 대표 질문과 동일한 의도인지 판단하고, 의도가 다른 질문이 있다면 별도 서브그룹으로 분리해주세요.
+
+JSON 형식:
+{{"groups": [
+  {{"representative": "대표 질문", "question_indices": [0, 1, 3]}},
+  {{"representative": "분리된 그룹의 대표", "question_indices": [2, 4]}}
+]}}
+
+모든 질문이 동일한 의도라면 하나의 그룹으로 반환하세요.
