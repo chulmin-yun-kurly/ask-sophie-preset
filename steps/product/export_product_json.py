@@ -9,9 +9,6 @@ from product_config import get_current_product, get_output_dir
 
 RESOURCE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'resource')
 
-with open(os.path.join(RESOURCE_DIR, 'answer_headlines.json'), 'r', encoding='utf-8') as _f:
-    ANSWER_HEADLINES = json.load(_f)
-
 
 def _to_bullet_or_desc(text: str) -> dict:
     """bullet list 형식이면 bulletList, 아니면 description으로 반환합니다."""
@@ -55,22 +52,21 @@ def export_product(product_map: dict):
     with open(answers_file, 'w', encoding='utf-8') as f:
         for cno, product in product_map.items():
             content = [
-                {'type': 'headline', 'data': ANSWER_HEADLINES.get('SUMMARY', '')},
                 {'type': 'intro', 'data': strip_html(product.get('intro', '')) or None},
                 {'type': 'title', 'data': strip_html(product.get('headline', ''))},
                 {'type': 'productNos', 'data': [cno]},
             ]
 
             if product.get('features', ''):
-                content.append({'type': 'title', 'data': '# 특장점'})
+                content.append({'type': 'title', 'data': '이런 점이 좋아요'})
                 content.append(_to_bullet_or_desc(strip_html(product['features'])))
 
             if product.get('story', ''):
-                content.append({'type': 'title', 'data': '# 스토리'})
+                content.append({'type': 'title', 'data': '고른 이유가 있어요'})
                 content.append(_to_bullet_or_desc(strip_html(product['story'])))
 
             if product.get('recommendation', ''):
-                content.append({'type': 'title', 'data': '# 이런 분께 추천해요'})
+                content.append({'type': 'title', 'data': '이런 분께 추천해요'})
                 content.append(_to_bullet_or_desc(strip_html(product['recommendation'])))
 
             content.append({'type': 'outro', 'data': strip_html(product.get('outro', '')) or None})
@@ -144,7 +140,6 @@ def export_product_qna(df_qna, product_map: dict):
                 subtopics = subtopics_raw if subtopics_raw else []
 
             content = [
-                {'type': 'headline', 'data': ANSWER_HEADLINES.get('INFO', '')},
                 {'type': 'intro', 'data': strip_html(row.get('answer_intro', ''))},
             ]
             for st in subtopics:

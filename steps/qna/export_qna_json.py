@@ -12,12 +12,10 @@ RESOURCE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.p
 
 
 def main():
-    # 1. 카테고리 매핑 / headline 매핑 로드
+    # 1. 카테고리 매핑 로드
     print("1. 카테고리 매핑 로드 중...")
     with open(os.path.join(RESOURCE_DIR, 'categories.json'), 'r', encoding='utf-8') as f:
         categories_list = json.load(f)
-    with open(os.path.join(RESOURCE_DIR, 'answer_headlines.json'), 'r', encoding='utf-8') as f:
-        answer_headlines = json.load(f)
     category_id_map = {c['name']: c['id'] for c in categories_list}
     category_type_map = {c['name']: c['type'] for c in categories_list}
     print(f"   카테고리 {len(category_id_map)}개")
@@ -116,11 +114,6 @@ def main():
         for cat in result:
             for group in cat['groups']:
                 content = []
-
-                # headline
-                headline = answer_headlines.get('RECOMMEND', '')
-                if headline:
-                    content.append({'type': 'headline', 'data': headline})
 
                 # intro
                 content.append({
