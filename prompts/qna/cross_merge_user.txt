@@ -1,0 +1,16 @@
+아래 두 질문 그룹이 실질적으로 같은 질문인지 판단해주세요.
+
+그룹 A (카테고리: {category_a}):
+  대표 질문: {representative_a}
+  포함 질문:
+{sample_questions_a}
+
+그룹 B (카테고리: {category_b}):
+  대표 질문: {representative_b}
+  포함 질문:
+{sample_questions_b}
+
+같은 질문이라면 더 적절한 대표 질문을 선택해주세요.
+
+JSON 형식:
+{{"merge": true/false, "representative": "선택된 대표 질문 (merge가 true일 때만)"}}
