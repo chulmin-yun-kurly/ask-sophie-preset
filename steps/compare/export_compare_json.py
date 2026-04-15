@@ -79,6 +79,11 @@ def main():
             content = _parse_json_list(row.get('content', '[]'))
             suggests = _parse_json_list(row.get('suggest', '[]'))
 
+            # title 선행 특수문자 제거
+            for c in content:
+                if isinstance(c, dict) and c.get('type') == 'title' and isinstance(c.get('data'), str):
+                    c['data'] = c['data'].lstrip('#* ')
+
             # 기존 content 내에 suggestions가 있다면 제거 후 마지막에 재부착
             content = [c for c in content if isinstance(c, dict) and c.get('type') != 'suggestions']
             content.append({'type': 'suggestions', 'data': to_suggestions_data(suggests)})

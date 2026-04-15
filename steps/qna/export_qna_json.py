@@ -125,7 +125,7 @@ def main():
                 for st_item in group.get('subtopics', []):
                     content.append({
                         'type': 'title',
-                        'data': strip_html(st_item.get('subtitle', '')),
+                        'data': strip_html(st_item.get('subtitle', '')).lstrip('#* '),
                     })
                     content.append({
                         'type': 'description',

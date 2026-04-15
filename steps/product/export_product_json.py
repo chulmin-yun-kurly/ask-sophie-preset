@@ -143,7 +143,7 @@ def export_product_qna(df_qna, product_map: dict):
                 {'type': 'intro', 'data': strip_html(row.get('answer_intro', ''))},
             ]
             for st in subtopics:
-                content.append({'type': 'title', 'data': f"# {strip_html(st.get('subtitle', ''))}"})
+                content.append({'type': 'title', 'data': strip_html(st.get('subtitle', '')).lstrip('#* ')})
                 content.append({'type': 'description', 'data': strip_html(st.get('description', ''))})
             content.append({'type': 'outro', 'data': strip_html(row.get('answer_outro', ''))})
             content.append({'type': 'suggestions', 'data': to_suggestions_data(suggests)})
