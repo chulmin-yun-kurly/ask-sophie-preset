@@ -30,6 +30,9 @@ CLUSTER_ANSWER_BATCH_SIZE = 5
 
 EMBEDDING_BATCH_SIZE = 100
 
+CORRECT_BATCH_SIZE = 5              # 교정 LLM 호출당 행 수
+CORRECT_MAX_CONCURRENT = 10         # 교정 동시 요청 수
+
 # 비교 파이프라인
 COMPARE_CANDIDATE_COUNT = 30        # 임베딩 top-K 후보 수
 COMPARE_FINAL_MIN = 5               # LLM 최종 선택 하한
@@ -52,6 +55,7 @@ TEMP_PRODUCT_ANSWER = 0.5       # 상품별 답변 생성
 TEMP_COMPARE_MATCH = 0.2        # 비교 파이프라인: 상품 필터링
 TEMP_COMPARE_ANSWER = 0.5       # 비교 파이프라인: 답변 생성
 TEMP_COMPARE_RELATED = 0.7      # 비교 파이프라인: related_question 변형 생성
+TEMP_CORRECT = 0.4              # 교정: 보수적 교정
 
 # ── 기타 ──────────────────────────────────────────
 SKIP_EMPTY_DESC = True              # description 없는 상품 스킵

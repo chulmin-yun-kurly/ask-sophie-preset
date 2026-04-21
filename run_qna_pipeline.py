@@ -8,8 +8,8 @@ QnA 파이프라인 실행기
     python run_qna_pipeline.py --product honey prepare  # 상품 지정 + 단계 선택
     python run_qna_pipeline.py --product olive_oil qa   # 그룹 지정 (qa: prepare ~ answer)
 
-단일 단계: prepare, qna, invert, cluster, answer, suggest, export
-그룹    : qa (prepare → qna → invert → cluster → answer), suggest, export
+단일 단계: prepare, qna, invert, cluster, answer, correct, suggest, export
+그룹    : qa (prepare → qna → invert → cluster → answer → correct), suggest, export
 """
 import argparse
 import subprocess
@@ -25,6 +25,7 @@ STEPS = [
     ('steps/qna/invert_questions.py', '질문 역전 & 동일 질문 통합'),
     ('steps/qna/cluster_questions.py', '질문 클러스터링 & 대표 질문 선정'),
     ('steps/qna/generate_answers.py', '대표 질문 답변 + 검색 키워드 생성'),
+    ('steps/qna/correct_answers.py', '답변 텍스트 문법/표현 교정'),
     ('steps/qna/build_suggestions.py', '연관 추천 생성'),
     ('steps/qna/export_qna_json.py', 'QnA JSON 파일 내보내기'),
 ]
@@ -35,13 +36,14 @@ STEP_MAP = {
     'invert': [STEPS[2]],
     'cluster': [STEPS[3]],
     'answer': [STEPS[4]],
-    'suggest': [STEPS[5]],
-    'export': [STEPS[6]],
+    'correct': [STEPS[5]],
+    'suggest': [STEPS[6]],
+    'export': [STEPS[7]],
 }
 
 # Phase 그룹: run_pipeline.py의 Phase 오케스트레이션에서 사용
 GROUP_MAP = {
-    'qa': ['prepare', 'qna', 'invert', 'cluster', 'answer'],
+    'qa': ['prepare', 'qna', 'invert', 'cluster', 'answer', 'correct'],
     'suggest': ['suggest'],
     'export': ['export'],
 }

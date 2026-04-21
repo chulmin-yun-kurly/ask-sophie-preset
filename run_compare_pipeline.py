@@ -9,8 +9,8 @@
     python run_compare_pipeline.py --product olive_oil answer  # 답변 생성만
     python run_compare_pipeline.py --product olive_oil qa      # 그룹 지정 (qa: prepare → match → answer)
 
-단일 단계: prepare, match, answer, suggest, export
-그룹    : qa (prepare → match → answer), suggest, export
+단일 단계: prepare, match, answer, correct, suggest, export
+그룹    : qa (prepare → match → answer → correct), suggest, export
 """
 import argparse
 import subprocess
@@ -24,6 +24,7 @@ STEPS = [
     ('steps/compare/prepare_compare.py', 'compare_question 로드 및 id 부여'),
     ('steps/compare/match_products.py', '임베딩 top-K + LLM 필터로 상품 매칭'),
     ('steps/compare/generate_compare_answer.py', '비교축 중심 답변 생성'),
+    ('steps/compare/correct_answers.py', '답변 텍스트 문법/표현 교정'),
     ('steps/compare/build_suggestions.py', '비교 질문 연관 추천(suggest) 생성'),
     ('steps/compare/export_compare_json.py', '비교 QnA JSONL 내보내기'),
 ]
@@ -32,13 +33,14 @@ STEP_MAP = {
     'prepare': [STEPS[0]],
     'match': [STEPS[1]],
     'answer': [STEPS[2]],
-    'suggest': [STEPS[3]],
-    'export': [STEPS[4]],
+    'correct': [STEPS[3]],
+    'suggest': [STEPS[4]],
+    'export': [STEPS[5]],
 }
 
 # Phase 그룹: run_pipeline.py의 Phase 오케스트레이션에서 사용
 GROUP_MAP = {
-    'qa': ['prepare', 'match', 'answer'],
+    'qa': ['prepare', 'match', 'answer', 'correct'],
     'suggest': ['suggest'],
     'export': ['export'],
 }

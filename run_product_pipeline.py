@@ -8,8 +8,8 @@
     python run_product_pipeline.py --product honey export   # 상품 지정 + 단계 선택
     python run_product_pipeline.py --product olive_oil qa   # 그룹 지정 (qa: product → question → answer)
 
-단일 단계: product, question, answer, suggest, export
-그룹    : qa (product → question → answer), suggest, export
+단일 단계: product, question, answer, correct, suggest, export
+그룹    : qa (product → question → answer → correct), suggest, export
 """
 import argparse
 import subprocess
@@ -23,6 +23,7 @@ STEPS = [
     ('steps/product/generate_products.py', '상품 소개/홍보 텍스트 생성'),
     ('steps/product/generate_product_question.py', '상품별 질문 생성'),
     ('steps/product/generate_product_answer.py', '상품별 답변 생성'),
+    ('steps/product/correct_answers.py', '답변 텍스트 문법/표현 교정'),
     ('steps/product/build_product_suggestions.py', '관련 질문(suggest) 매핑'),
     ('steps/product/export_product_json.py', '상품 JSON 파일 내보내기'),
 ]
@@ -31,13 +32,14 @@ STEP_MAP = {
     'product': [STEPS[0]],
     'question': [STEPS[1]],
     'answer': [STEPS[2]],
-    'suggest': [STEPS[3]],
-    'export': [STEPS[4]],
+    'correct': [STEPS[3]],
+    'suggest': [STEPS[4]],
+    'export': [STEPS[5]],
 }
 
 # Phase 그룹: run_pipeline.py의 Phase 오케스트레이션에서 사용
 GROUP_MAP = {
-    'qa': ['product', 'question', 'answer'],
+    'qa': ['product', 'question', 'answer', 'correct'],
     'suggest': ['suggest'],
     'export': ['export'],
 }
