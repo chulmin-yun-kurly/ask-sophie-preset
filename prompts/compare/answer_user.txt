@@ -17,7 +17,7 @@ JSON 형식으로 응답:
 - description 블록에서만 핵심 키워드/문구를 `<strong>...</strong>`로 감쌉니다. intro/title/comparison/productNos/outro에는 사용하지 않습니다.
 {{
   "content": [
-    {{"type": "intro", "data": "그리스산과 이탈리아산, 어떤 걸 골라야 할지 행복한 고민 중이시군요! ..."}},
+    {{"type": "intro", "data": "그리스산과 이탈리아산, 어떤 걸 골라야 할지 고민 중이시군요! ..."}},
     {{"type": "title", "data": "그리스의 부드러움 vs 이탈리아의 강렬함"}},
     {{"type": "comparison", "data": {{
       "headers": ["", "🇬🇷 그리스산", "🇮🇹 이탈리아산"],
@@ -28,7 +28,7 @@ JSON 형식으로 응답:
         {{"label": "추천 용도", "values": ["아침 공복에 **생으로** 편안하게", "요리에 **진한 풍미의 엣지**를 더할 때"]}}
       ]
     }}}},
-    {{"type": "description", "data": "그리스산은 <strong>코로네이키·칼라마타</strong> 중심으로 <strong>낮은 산도와 부드러운 목 넘김</strong>이 공통 특징이에요. 이탈리아산은 <strong>코라티나</strong> 같은 토착 품종이 많아 쌉싸름함과 매캐함이 또렷합니다. 퓨어보다 올리브 개성을 조금 더 느끼고 싶을 때 잘 맞아요."}},
+    {{"type": "description", "data": "그리스산은 <strong>코로네이키·칼라마타</strong> 중심으로 <strong>낮은 산도와 부드러운 목 넘김</strong>이 공통 특징이에요. 이탈리아산은 <strong>코라티나</strong> 같은 토착 품종이 많아 쌉싸름함과 매캐함이 또렷해요. 퓨어보다 올리브 개성을 조금 더 느끼고 싶을 때 잘 맞아요."}},
     {{"type": "productNos", "data": [5049153, 5045209]}},
     {{"type": "outro", "data": "가볍게 생으로 즐길지, 요리에 힘을 줄지에 따라 답이 달라져요. 식탁 취향에 맞는 한 병을 골라보세요."}}
   ]
